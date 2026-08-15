@@ -1,0 +1,6 @@
+{
+  "name": "HouseHunt Real Estate Portal",
+  "description": "A comprehensive real estate listing portal featuring smart search, detailed property pages, owner listings dashboard, inquiry management, and EMI calculator.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

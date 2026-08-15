@@ -1,0 +1,59 @@
+name: Node.js CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: househunt_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Use Node.js 20.x
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20.x
+        cache: 'npm'
+        cache-dependency-path: './backend/package-lock.json'
+        
+    - name: Install dependencies
+      working-directory: ./backend
+      run: npm ci
+      
+    - name: Create Env File
+      working-directory: ./backend
+      run: |
+        echo "PORT=5000" >> .env
+        echo "NODE_ENV=test" >> .env
+        echo "JWT_SECRET=github_action_test_secret" >> .env
+        echo "DATABASE_URL=postgres://postgres:password@localhost:5432/househunt_test" >> .env
+        echo "CLOUDINARY_CLOUD_NAME=demo" >> .env
+        echo "CLOUDINARY_API_KEY=demo_key" >> .env
+        echo "CLOUDINARY_API_SECRET=demo_secret" >> .env
+        
+    - name: Run Migrations
+      working-directory: ./backend
+      run: npm run db:migrate
+      
+    - name: Run Tests
+      working-directory: ./backend
+      run: npm run test

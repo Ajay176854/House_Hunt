@@ -72,21 +72,21 @@ export const createListingSchema = z.object({
 
 export const updateListingSchema = createListingSchema.partial();
 
-export const listingsQuerySchema = z.object({
-  search: z.string().trim().optional(),
-  city: z.string().trim().optional(),
-  locality: z.string().trim().optional(),
-  listingType: z.string().trim().optional(),
+export const searchParamsSchema = z.object({
+  search: z.string().optional(),
+  city: z.string().optional(),
+  locality: z.string().optional(),
+  listingType: z.enum(["rent", "buy", "all"]).optional(),
   propertyTypes: z.union([z.string(), z.array(z.string())]).optional(),
-  minPrice: z.string().optional(),
-  maxPrice: z.string().optional(),
+  minPrice: z.string().regex(/^\d+$/).optional(),
+  maxPrice: z.string().regex(/^\d+$/).optional(),
   bedrooms: z.union([z.string(), z.array(z.string())]).optional(),
   furnishing: z.union([z.string(), z.array(z.string())]).optional(),
   isVerified: z.string().optional(),
   isZeroBrokerage: z.string().optional(),
-  sort: z.string().optional(),
-  page: z.string().optional(),
-  limit: z.string().optional(),
+  sort: z.enum(["price_asc", "price_desc", "newest"]).optional(),
+  cursor: z.string().optional(),
+  limit: z.string().regex(/^\d+$/).optional(),
 });
 
 export type CreateListingInput = z.infer<typeof createListingSchema>;

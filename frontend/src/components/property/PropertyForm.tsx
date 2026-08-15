@@ -22,7 +22,7 @@ import confetti from 'canvas-confetti';
 interface PropertyFormProps {
   initialData?: Partial<Property>;
   isEditing?: boolean;
-  onSubmit: (data: Partial<Property>) => Promise<void>;
+  onSubmit: (data: FormData | Partial<Property>) => Promise<void>;
   onCancel?: () => void;
 }
 
@@ -93,6 +93,9 @@ export const PropertyForm: React.FC<PropertyFormProps> = ({
     petFriendly: initialData?.petFriendly !== undefined ? initialData.petFriendly : true,
   });
 
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [filePreviewUrls, setFilePreviewUrls] = useState<string[]>([]);
+
   const [customImageUrl, setCustomImageUrl] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -138,13 +141,48 @@ export const PropertyForm: React.FC<PropertyFormProps> = ({
     setFormData({ ...formData, images: current.filter((_, i) => i !== index) });
   };
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      const filesArray = Array.from(e.target.files);
+      setSelectedFiles((prev) => [...prev, ...filesArray]);
+      
+      const newPreviews = filesArray.map(file => URL.createObjectURL(file));
+      setFilePreviewUrls((prev) => [...prev, ...newPreviews]);
+    }
+  };
+
+  const handleRemoveFile = (index: number) => {
+    setSelectedFiles((prev) => prev.filter((_, i) => i !== index));
+    setFilePreviewUrls((prev) => {
+      const newUrls = [...prev];
+      URL.revokeObjectURL(newUrls[index]);
+      newUrls.splice(index, 1);
+      return newUrls;
+    });
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validate()) return;
 
     setIsSubmitting(true);
     try {
-      await onSubmit(formData);
+      const submitData = new FormData();
+      Object.entries(formData).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          if (Array.isArray(value) || typeof value === 'object') {
+            submitData.append(key, JSON.stringify(value));
+          } else {
+            submitData.append(key, String(value));
+          }
+        }
+      });
+      
+      selectedFiles.forEach((file) => {
+        submitData.append('images', file);
+      });
+
+      await onSubmit(submitData);
       confetti({
         particleCount: 100,
         spread: 70,
@@ -549,54 +587,50 @@ export const PropertyForm: React.FC<PropertyFormProps> = ({
             {/* Preset quick picker */}
             <div>
               <label className="block text-xs font-medium text-slate-600 mb-2">
-                Click to add high-quality architectural sample images:
+                Select high-quality images from your device:
               </label>
-              <div className="grid grid-cols-4 sm:grid-cols-8 gap-2">
-                {PRESET_GALLERY_IMAGES.map((url, i) => (
-                  <img
-                    key={i}
-                    src={url}
-                    alt={`preset ${i}`}
-                    onClick={() => handleAddPresetImage(url)}
-                    className="w-full h-14 object-cover rounded-lg border border-slate-200 hover:border-rose-500 hover:scale-105 transition-all cursor-pointer"
-                  />
-                ))}
-              </div>
-            </div>
-
-            {/* Custom image URL input */}
-            <div className="flex gap-2">
-              <input
-                type="url"
-                value={customImageUrl}
-                onChange={(e) => setCustomImageUrl(e.target.value)}
-                placeholder="Or paste any custom image URL (https://...)"
-                className="flex-1 px-3 py-2 text-xs border border-slate-300 rounded-xl focus:ring-2 focus:ring-rose-500"
+              <input 
+                type="file" 
+                multiple 
+                accept="image/*"
+                onChange={handleFileChange}
+                className="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-rose-50 file:text-rose-700 hover:file:bg-rose-100"
               />
-              <button
-                type="button"
-                onClick={handleAddCustomImage}
-                className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-xl cursor-pointer"
-              >
-                Add Image
-              </button>
             </div>
 
             {/* Selected Images List */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
-              {(formData.images || []).map((img, idx) => (
-                <div key={idx} className="relative group rounded-xl overflow-hidden border border-slate-200 aspect-16/10">
-                  <img src={img} alt={`selected ${idx}`} className="w-full h-full object-cover" />
-                  <button
-                    type="button"
-                    onClick={() => handleRemoveImage(idx)}
-                    className="absolute top-1 right-1 bg-rose-600/90 text-white p-1 rounded-md opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
-                  >
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-              ))}
-            </div>
+            {(formData.images?.length! > 0 || filePreviewUrls.length > 0) && (
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
+                {/* Existing Images */}
+                {(formData.images || []).map((img, idx) => (
+                  <div key={`exist-${idx}`} className="relative group rounded-xl overflow-hidden border border-slate-200 aspect-16/10">
+                    <img src={img} alt={`selected ${idx}`} className="w-full h-full object-cover" />
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveImage(idx)}
+                      className="absolute top-1 right-1 bg-rose-600/90 text-white p-1 rounded-md opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                ))}
+                
+                {/* New Files */}
+                {filePreviewUrls.map((img, idx) => (
+                  <div key={`new-${idx}`} className="relative group rounded-xl overflow-hidden border border-rose-200 aspect-16/10">
+                    <img src={img} alt={`new preview ${idx}`} className="w-full h-full object-cover opacity-80" />
+                    <div className="absolute top-1 left-1 bg-rose-600 text-white text-[10px] px-1.5 py-0.5 rounded font-bold">NEW</div>
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveFile(idx)}
+                      className="absolute top-1 right-1 bg-rose-600/90 text-white p-1 rounded-md opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Form Actions */}

@@ -1,10 +1,13 @@
 import { Router } from "express";
+import multer from "multer";
 import * as listingsController from "../controllers/listings.controller";
 import { requireAuth } from "../middleware/auth";
 import { validate } from "../middleware/validate";
 import { createListingSchema, updateListingSchema } from "../validators/listings.schema";
 
 const router = Router();
+const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 5 * 1024 * 1024 } }); // 5MB max
+
 
 /**
  * @swagger
@@ -173,7 +176,31 @@ router.get("/:id", listingsController.getListingById);
  *       401:
  *         description: Not authenticated
  */
-router.post("/", requireAuth, validate(createListingSchema), listingsController.createListing);
+const parseMultipartBody = (req: any, res: any, next: any) => {
+  if (req.body) {
+    const numberFields = ['price', 'maintenanceCharges', 'depositAmount', 'bedrooms', 'bathrooms', 'balconies', 'carpetAreaSqFt', 'superBuiltUpSqFt', 'pricePerSqFt', 'floorNo', 'totalFloors'];
+    for (const field of numberFields) {
+      if (req.body[field] !== undefined) {
+        req.body[field] = Number(req.body[field]);
+      }
+    }
+    const jsonFields = ['amenities', 'preferredTenants'];
+    for (const field of jsonFields) {
+      if (typeof req.body[field] === 'string') {
+        try { req.body[field] = JSON.parse(req.body[field]); } catch (e) {}
+      }
+    }
+    const boolFields = ['isVerified', 'isZeroBrokerage', 'gatedSecurity', 'petFriendly'];
+    for (const field of boolFields) {
+      if (typeof req.body[field] === 'string') {
+        req.body[field] = req.body[field] === 'true';
+      }
+    }
+  }
+  next();
+};
+
+router.post("/", requireAuth, upload.array("images", 10), parseMultipartBody, validate(createListingSchema), listingsController.createListing);
 
 /**
  * @swagger
@@ -204,7 +231,7 @@ router.post("/", requireAuth, validate(createListingSchema), listingsController.
  *       404:
  *         description: Property not found
  */
-router.put("/:id", requireAuth, validate(updateListingSchema), listingsController.updateListing);
+router.put("/:id", requireAuth, upload.array("images", 10), parseMultipartBody, validate(updateListingSchema), listingsController.updateListing);
 
 /**
  * @swagger

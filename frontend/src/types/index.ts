@@ -112,7 +112,7 @@ export interface FilterParams {
   isZeroBrokerage?: boolean;
   readyToMove?: boolean;
   sort?: 'newest' | 'price_asc' | 'price_desc' | 'area_desc' | 'popular';
-  page?: number;
+  cursor?: string;
   limit?: number;
 }
 
@@ -120,9 +120,8 @@ export interface PaginatedResponse<T> {
   data: T[];
   pagination: {
     total: number;
-    page: number;
+    nextCursor: string | null;
     limit: number;
-    totalPages: number;
   };
 }
 

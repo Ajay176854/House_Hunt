@@ -9,9 +9,8 @@ export interface PaginatedResponse<T> {
   data: T[];
   pagination: {
     total: number;
-    page: number;
+    nextCursor: string | null;
     limit: number;
-    totalPages: number;
   };
 }
 
@@ -28,7 +27,7 @@ interface ListingsQuery {
   isVerified?: string;
   isZeroBrokerage?: string;
   sort?: string;
-  page?: string;
+  cursor?: string;
   limit?: string;
 }
 
@@ -176,40 +175,78 @@ export async function searchListings(query: ListingsQuery): Promise<PaginatedRes
     whereClauses.push(`is_zero_brokerage = true`);
   }
 
-  let orderBy = "created_at DESC";
+  let orderBy = "created_at DESC, id ASC";
+  let sortField = "created_at";
+  let sortDir = "DESC";
+  
   switch (query.sort) {
-    case "price_asc": orderBy = "price ASC"; break;
-    case "price_desc": orderBy = "price DESC"; break;
-    case "newest": orderBy = "created_at DESC"; break;
+    case "price_asc": 
+      orderBy = "price ASC, id ASC"; 
+      sortField = "price";
+      sortDir = "ASC";
+      break;
+    case "price_desc": 
+      orderBy = "price DESC, id ASC"; 
+      sortField = "price";
+      sortDir = "DESC";
+      break;
+    case "newest": 
+      orderBy = "created_at DESC, id ASC"; 
+      sortField = "created_at";
+      sortDir = "DESC";
+      break;
   }
 
-  const page = parseInt(query.page || "1", 10);
-  const limit = parseInt(query.limit || "20", 10);
-  const offset = (page - 1) * limit;
+  const baseWhereClauses = [...whereClauses];
+  const baseParams = [...params];
 
+  if (query.cursor) {
+    try {
+      const decoded = JSON.parse(Buffer.from(query.cursor, 'base64').toString('utf-8'));
+      if (decoded.val !== undefined && decoded.id) {
+        const op = sortDir === "ASC" ? ">" : "<";
+        // Keyset pagination condition: (sortField > val) OR (sortField = val AND id > id)
+        whereClauses.push(`(${sortField} ${op} $${paramIndex} OR (${sortField} = $${paramIndex} AND id > $${paramIndex + 1}))`);
+        params.push(decoded.val, decoded.id);
+        paramIndex += 2;
+      }
+    } catch (e) {
+      // Invalid cursor, ignore
+    }
+  }
+
+  const limit = parseInt(query.limit || "20", 10);
   const whereSql = whereClauses.length > 0 ? `WHERE ${whereClauses.join(" AND ")}` : "";
+  const baseWhereSql = baseWhereClauses.length > 0 ? `WHERE ${baseWhereClauses.join(" AND ")}` : "";
   
-  const countSql = `SELECT COUNT(*) FROM properties ${whereSql}`;
-  const countResult = await db.query(countSql, params);
+  const countSql = `SELECT COUNT(*) FROM properties ${baseWhereSql}`;
+  const countResult = await db.query(countSql, baseParams);
   const total = parseInt(countResult.rows[0].count, 10);
 
   const sql = `
     SELECT * FROM properties 
     ${whereSql}
     ORDER BY ${orderBy}
-    LIMIT $${paramIndex} OFFSET $${paramIndex + 1}
+    LIMIT $${paramIndex}
   `;
-  params.push(limit, offset);
+  params.push(limit);
 
   const { rows } = await db.query(sql, params);
+  
+  let nextCursor = null;
+  if (rows.length === limit) {
+    const lastRow = rows[rows.length - 1];
+    let val = lastRow[sortField];
+    if (val instanceof Date) val = val.toISOString(); // Format dates for JSON
+    nextCursor = Buffer.from(JSON.stringify({ val, id: lastRow.id })).toString('base64');
+  }
 
   return {
     data: rows.map(mapDbProperty),
     pagination: {
       total,
-      page,
+      nextCursor,
       limit,
-      totalPages: Math.ceil(total / limit),
     }
   };
 }

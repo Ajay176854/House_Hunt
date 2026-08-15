@@ -33,21 +33,25 @@ export const SearchPage: React.FC = () => {
     isZeroBrokerage: searchParams?.get('isZeroBrokerage') === 'true',
   };
 
-  const [filters, setFilters] = useState<FilterParams>(initialFilters);
+  const [filters, setFilters] = useState<Partial<FilterParams>>(initialFilters);
+  
   const [properties, setProperties] = useState<Property[]>([]);
-  const [totalItems, setTotalItems] = useState(0);
-  const [totalPages, setTotalPages] = useState(1);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  
+  const [totalItems, setTotalItems] = useState(0);
+  const [nextCursor, setNextCursor] = useState<string | null>(null);
+  
   const [selectedPropertyForInquiry, setSelectedPropertyForInquiry] = useState<Property | null>(null);
 
   // Sync state to URL without full reload
   useEffect(() => {
     const query = new URLSearchParams();
+    if (filters.search) query.set('q', filters.search);
     if (filters.city) query.set('city', filters.city);
-    if (filters.listingType && filters.listingType !== 'all') query.set('listingType', filters.listingType);
-    if (filters.search) query.set('search', filters.search);
-    if (filters.page && filters.page > 1) query.set('page', filters.page.toString());
+    if (filters.locality) query.set('locality', filters.locality);
+    if (filters.listingType && filters.listingType !== 'all') query.set('type', filters.listingType);
     if (filters.sort && filters.sort !== 'newest') query.set('sort', filters.sort);
     if (filters.minPrice) query.set('minPrice', filters.minPrice.toString());
     if (filters.maxPrice) query.set('maxPrice', filters.maxPrice.toString());
@@ -61,36 +65,58 @@ export const SearchPage: React.FC = () => {
     window.history.replaceState({ ...window.history.state, as: newUrl, url: newUrl }, '', newUrl);
   }, [filters]);
 
-  const fetchListingData = async () => {
-    setIsLoading(true);
+  const fetchListingData = async (loadMore = false) => {
+    if (loadMore) {
+      setIsLoadingMore(true);
+    } else {
+      setIsLoading(true);
+    }
     setError(null);
     try {
-      const res = await getProperties(filters);
-      setProperties(res.data);
+      const currentFilters = { ...filters };
+      if (loadMore && nextCursor) {
+        currentFilters.cursor = nextCursor;
+      } else {
+        delete currentFilters.cursor;
+      }
+      
+      const res = await getProperties(currentFilters);
+      
+      if (loadMore) {
+        setProperties(prev => [...prev, ...res.data]);
+      } else {
+        setProperties(res.data);
+      }
+      
       setTotalItems(res.pagination.total);
-      setTotalPages(res.pagination.totalPages);
+      setNextCursor(res.pagination.nextCursor);
     } catch (err: any) {
       setError(err.message || 'Failed to load properties');
     } finally {
       setIsLoading(false);
+      setIsLoadingMore(false);
     }
   };
 
   useEffect(() => {
-    fetchListingData();
-    // Scroll to top when page changes
+    fetchListingData(false);
+    // Scroll to top when page changes (only on fresh fetch)
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [filters]);
 
   const handleFilterChange = (newFilters: Partial<FilterParams>) => {
-    setFilters((prev) => ({ ...prev, ...newFilters }));
+    setFilters((prev) => {
+      // Create a new filters object, discarding cursor to trigger fresh search
+      const updated = { ...prev, ...newFilters };
+      delete updated.cursor;
+      return updated;
+    });
   };
 
   const handleResetFilters = () => {
     setFilters({
       city: undefined,
       listingType: 'all',
-      page: 1,
       limit: 10,
       sort: 'newest',
     });
@@ -108,7 +134,7 @@ export const SearchPage: React.FC = () => {
             <input 
               type="text" 
               value={filters.search || ''}
-              onChange={(e) => handleFilterChange({ search: e.target.value, page: 1 })}
+              onChange={(e) => handleFilterChange({ search: e.target.value })}
               placeholder="Search by locality, society, or landmark..." 
               className="w-full bg-white text-[13px] font-medium text-slate-800 placeholder-slate-400 rounded-lg pl-9 pr-4 py-2 outline-none"
             />
@@ -148,7 +174,7 @@ export const SearchPage: React.FC = () => {
                 <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Sort By</span>
                 <select 
                   value={filters.sort || 'newest'}
-                  onChange={(e) => handleFilterChange({ sort: e.target.value as any, page: 1 })}
+                  onChange={(e) => handleFilterChange({ sort: e.target.value as any })}
                   className="bg-slate-50 border border-slate-200 text-sm font-semibold text-slate-800 rounded-lg px-3 py-1.5 outline-none"
                 >
                   <option value="newest">Newest First</option>
@@ -162,13 +188,13 @@ export const SearchPage: React.FC = () => {
             {/* Quick Pills */}
             <div className="flex flex-wrap gap-2 mb-6">
               <button 
-                onClick={() => handleFilterChange({ isVerified: !filters.isVerified, page: 1 })}
+                onClick={() => handleFilterChange({ isVerified: !filters.isVerified })}
                 className={`px-3 py-1.5 rounded-full text-xs font-bold border transition-colors ${filters.isVerified ? 'bg-emerald-50 border-emerald-200 text-emerald-700' : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'}`}
               >
                 Verified
               </button>
               <button 
-                onClick={() => handleFilterChange({ isZeroBrokerage: !filters.isZeroBrokerage, page: 1 })}
+                onClick={() => handleFilterChange({ isZeroBrokerage: !filters.isZeroBrokerage })}
                 className={`px-3 py-1.5 rounded-full text-xs font-bold border transition-colors ${filters.isZeroBrokerage ? 'bg-rose-50 border-rose-200 text-rose-700' : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'}`}
               >
                 Zero Brokerage
@@ -207,15 +233,15 @@ export const SearchPage: React.FC = () => {
                   ))}
                 </div>
 
-                {totalPages > 1 && (
-                  <div className="mt-8">
-                    <Pagination
-                      currentPage={filters.page || 1}
-                      totalPages={totalPages}
-                      totalItems={totalItems}
-                      itemsPerPage={filters.limit || 10}
-                      onPageChange={(p) => handleFilterChange({ page: p })}
-                    />
+                {nextCursor && (
+                  <div className="mt-8 flex justify-center">
+                    <button
+                      onClick={() => fetchListingData(true)}
+                      disabled={isLoadingMore}
+                      className="bg-slate-900 hover:bg-slate-800 disabled:opacity-50 text-white px-8 py-3 rounded-lg font-bold transition-colors cursor-pointer"
+                    >
+                      {isLoadingMore ? 'Loading more...' : 'Load More Properties'}
+                    </button>
                   </div>
                 )}
               </>

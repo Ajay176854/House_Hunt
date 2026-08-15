@@ -51,9 +51,13 @@ export function setRefreshToken(token: string): void {
 async function request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
   const token = getAuthToken();
   const headers: Record<string, string> = {
-    'Content-Type': 'application/json',
     ...(options.headers as Record<string, string>),
   };
+
+  // Only set application/json if not sending FormData
+  if (!(options.body instanceof FormData) && !headers['Content-Type']) {
+    headers['Content-Type'] = 'application/json';
+  }
 
   if (token) {
     headers['Authorization'] = `Bearer ${token}`;
@@ -107,7 +111,7 @@ export async function getProperties(params: FilterParams = {}): Promise<Paginate
   if (params.isVerified) query.append('isVerified', 'true');
   if (params.isZeroBrokerage) query.append('isZeroBrokerage', 'true');
   if (params.sort) query.append('sort', params.sort);
-  if (params.page) query.append('page', params.page.toString());
+  if (params.cursor) query.append('cursor', params.cursor);
   if (params.limit) query.append('limit', params.limit.toString());
 
   if (params.propertyTypes && params.propertyTypes.length > 0) {
@@ -129,17 +133,17 @@ export async function getPropertyById(id: string): Promise<{ property: Property;
   return request<{ property: Property; similar: Property[] }>(`/api/listings/${id}`);
 }
 
-export async function createProperty(propertyData: Partial<Property>): Promise<{ message: string; property: Property }> {
-  return request<{ message: string; property: Property }>('/api/listings', {
+export async function createProperty(data: FormData | Partial<Property>): Promise<{ success: boolean; property: Property; message: string }> {
+  return request<{ success: boolean; property: Property; message: string }>('/api/listings', {
     method: 'POST',
-    body: JSON.stringify(propertyData),
+    body: data instanceof FormData ? data : JSON.stringify(data),
   });
 }
 
-export async function updateProperty(id: string, propertyData: Partial<Property>): Promise<{ message: string; property: Property }> {
-  return request<{ message: string; property: Property }>(`/api/listings/${id}`, {
+export async function updateProperty(id: string, data: FormData | Partial<Property>): Promise<{ success: boolean; property: Property }> {
+  return request<{ success: boolean; property: Property }>(`/api/listings/${id}`, {
     method: 'PUT',
-    body: JSON.stringify(propertyData),
+    body: data instanceof FormData ? data : JSON.stringify(data),
   });
 }
 

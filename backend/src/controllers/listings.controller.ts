@@ -46,6 +46,8 @@ export async function getListingById(req: Request, res: Response, next: NextFunc
   }
 }
 
+import { uploadToCloudinary } from "../services/cloudinary.service";
+
 /**
  * POST /api/listings
  * Create listing (auth required). Body validated by Zod middleware.
@@ -54,6 +56,13 @@ export async function createListing(req: Request, res: Response, next: NextFunct
   try {
     if (!req.user) {
       return next({ statusCode: 401, message: "Authentication required." });
+    }
+
+    // Handle image uploads
+    if (req.files && Array.isArray(req.files) && req.files.length > 0) {
+      const uploadPromises = req.files.map(file => uploadToCloudinary(file.buffer));
+      const uploadedUrls = await Promise.all(uploadPromises);
+      req.body.images = [...(req.body.images || []), ...uploadedUrls];
     }
 
     const result = await listingsService.createListing(req.body, req.user);
@@ -78,7 +87,15 @@ export async function updateListing(req: Request, res: Response, next: NextFunct
       return next({ statusCode: 401, message: "Authentication required." });
     }
 
-    const result = await listingsService.updateListing(req.params.id, req.body, req.user);
+    // Handle image uploads
+    if (req.files && Array.isArray(req.files) && req.files.length > 0) {
+      const uploadPromises = req.files.map(file => uploadToCloudinary(file.buffer));
+      const uploadedUrls = await Promise.all(uploadPromises);
+      req.body.images = [...(req.body.images || []), ...uploadedUrls];
+    }
+
+    const { id } = req.params;
+    const result = await listingsService.updateListing(id, req.body, req.user);
 
     res.json({
       success: true,

@@ -22,7 +22,7 @@ import {
   Calendar,
   Layers,
   Compass,
-  CheckCircle2,
+  CheckCircle,
   Phone,
   Mail,
   User as UserIcon,
@@ -375,7 +375,7 @@ export const PropertyDetailPage: React.FC<PropertyDetailPageProps> = ({
                     key={idx}
                     className="p-3 bg-slate-50 rounded-xl border border-slate-100 flex items-center gap-2.5 text-xs text-slate-800 font-medium"
                   >
-                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                    <CheckCircle className="w-4 h-4 text-emerald-600 shrink-0" />
                     <span>{amenity}</span>
                   </div>
                 ))}

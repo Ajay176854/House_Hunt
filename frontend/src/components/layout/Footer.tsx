@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Building2, ShieldCheck, Sparkles, Phone, Mail, Heart } from 'lucide-react';
+import { Home, ShieldCheck, Sparkles, Phone, Mail, Heart } from 'lucide-react';
 import { useMetadata } from '@/context/MetadataContext';
 
 interface FooterProps {
@@ -21,14 +21,14 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onSelectCity }) => {
           <div className="lg:col-span-2 space-y-4">
             <div className="flex items-center gap-2.5">
               <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-rose-600 to-rose-500 text-white flex items-center justify-center shadow-md">
-                <Building2 className="w-5 h-5" />
+                <Home className="w-5 h-5" />
               </div>
               <span className="font-black text-xl tracking-tight text-white">
                 House<span className="text-rose-500">Hunt</span>
               </span>
             </div>
             <p className="text-xs text-slate-400 max-w-sm leading-relaxed">
-              India's premier verified real estate portal enabling buyers and tenants to connect directly with property owners without paying costly middleman commissions.
+              India&apos;s premier verified real estate portal enabling buyers and tenants to connect directly with property owners without paying costly middleman commissions.
             </p>
             <div className="flex items-center gap-4 text-xs text-emerald-400 font-semibold">
               <span className="flex items-center gap-1.5">
@@ -120,10 +120,10 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onSelectCity }) => {
         <div className="pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
           <p>© {new Date().getFullYear()} HouseHunt Real Estate Portal. Built for high performance.</p>
           <div className="flex items-center gap-4">
-            <span className="hover:text-slate-400 cursor-pointer">Privacy Policy</span>
-            <span className="hover:text-slate-400 cursor-pointer">Terms of Use</span>
-            <span className="hover:text-slate-400 cursor-pointer">Rental Agreement</span>
-            <span className="hover:text-slate-400 cursor-pointer">Home Loan Advisory</span>
+            <button onClick={() => onNavigate('/privacy-policy')} className="hover:text-slate-400 cursor-pointer">Privacy Policy</button>
+            <button onClick={() => onNavigate('/terms')} className="hover:text-slate-400 cursor-pointer">Terms of Use</button>
+            <button onClick={() => onNavigate('/rental-agreement')} className="hover:text-slate-400 cursor-pointer">Rental Agreement</button>
+            <button onClick={() => onNavigate('/home-loans')} className="hover:text-slate-400 cursor-pointer">Home Loan Advisory</button>
           </div>
         </div>
       </div>

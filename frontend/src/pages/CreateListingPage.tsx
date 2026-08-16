@@ -30,8 +30,10 @@ export const CreateListingPage: React.FC<CreateListingPageProps> = ({ onNavigate
     );
   }
 
-  const handleCreate = async (formData: Partial<Property>) => {
-    const res = await createProperty(formData);
+  const handleCreate = async (formData: FormData | Partial<Property>) => {
+    // Note: createProperty expects a FormData or Partial<Property>. 
+    // We are passing it directly to createProperty.
+    const res = await createProperty(formData as any);
     setTimeout(() => {
       onNavigate(`/listings/${res.property.id}`);
     }, 800);

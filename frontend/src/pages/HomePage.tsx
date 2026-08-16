@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Property, FilterParams, PaginatedResponse } from '@/types';
 import { getProperties } from '@/services/api';
 import { PropertyCard } from '@/components/property/PropertyCard';
@@ -14,7 +14,7 @@ import {
   Building2,
   TrendingUp,
   MapPin,
-  CheckCircle2,
+  CheckCircle,
   Search,
   SlidersHorizontal,
 } from 'lucide-react';
@@ -26,6 +26,13 @@ interface HomePageProps {
 
 export const HomePage: React.FC<HomePageProps> = ({ initialCity, onNavigate }) => {
   const { heroProperty, cityCounts, stats } = useMetadata();
+  const carouselRef = useRef<HTMLDivElement>(null);
+
+  const scrollCarousel = () => {
+    if (carouselRef.current) {
+      carouselRef.current.scrollBy({ left: 300, behavior: 'smooth' });
+    }
+  };
   const [filters, setFilters] = useState<FilterParams>({
     city: initialCity && initialCity !== 'All Cities' ? initialCity : undefined,
     listingType: 'all',
@@ -38,10 +45,21 @@ export const HomePage: React.FC<HomePageProps> = ({ initialCity, onNavigate }) =
   const [selectedPropertyForInquiry, setSelectedPropertyForInquiry] = useState<Property | null>(null);
 
   useEffect(() => {
+    setFilters(prev => ({
+      ...prev,
+      city: initialCity && initialCity !== 'All Cities' ? initialCity : undefined
+    }));
+  }, [initialCity]);
+
+  useEffect(() => {
     const fetchLatest = async () => {
       setIsLoading(true);
       try {
-        const res = await getProperties({ limit: 6, sort: 'newest' });
+        const query: any = { limit: 6, sort: 'newest' };
+        if (filters.city) {
+          query.city = filters.city;
+        }
+        const res = await getProperties(query);
         setLatestProperties(res.data);
       } catch (err) {
         console.error("Failed to load latest properties");
@@ -50,7 +68,7 @@ export const HomePage: React.FC<HomePageProps> = ({ initialCity, onNavigate }) =
       }
     };
     fetchLatest();
-  }, []);
+  }, [filters.city]);
 
   const handleFilterChange = (newFilters: Partial<FilterParams>) => {
     setFilters((prev) => ({ ...prev, ...newFilters }));
@@ -78,6 +96,10 @@ export const HomePage: React.FC<HomePageProps> = ({ initialCity, onNavigate }) =
     });
   };
 
+  const activeHeroProperty = (filters.city && filters.city !== 'All Cities' && latestProperties.length > 0 && latestProperties[0].images?.length > 0) 
+    ? latestProperties[0] 
+    : heroProperty;
+
   return (
     <div className="min-h-screen bg-slate-50/50 pb-16">
       <SEOHead
@@ -90,7 +112,7 @@ export const HomePage: React.FC<HomePageProps> = ({ initialCity, onNavigate }) =
         {/* Background Image */}
         <div className="absolute inset-0 z-0 bg-slate-900">
           <img 
-            src={heroProperty?.images?.[0] || "https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&q=80&w=2000"} 
+            src={activeHeroProperty?.images?.[0] || "https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&q=80&w=2000"} 
             alt="Real Estate Banner"
             className="w-full h-full object-cover opacity-60"
           />
@@ -98,13 +120,11 @@ export const HomePage: React.FC<HomePageProps> = ({ initialCity, onNavigate }) =
 
         {/* Floating text content at the top of hero */}
         <div className="absolute top-8 md:top-16 left-0 right-0 z-10 text-center px-4">
-          <span className="bg-emerald-600 text-white text-[10px] font-bold px-2 py-0.5 rounded tracking-wider uppercase mb-3 inline-block shadow-sm">
-            {heroProperty ? 'Featured Listing' : 'Luxury'}
-          </span>
-          <h1 className="text-3xl md:text-5xl font-black text-white drop-shadow-md tracking-tight leading-tight cursor-pointer hover:underline" onClick={() => heroProperty && onNavigate(`/listings/${heroProperty.id}`)}>
-            {heroProperty ? (
+
+          <h1 className="text-3xl md:text-5xl font-black text-white drop-shadow-md tracking-tight leading-tight cursor-pointer hover:underline" onClick={() => activeHeroProperty && onNavigate(`/listings/${activeHeroProperty.id}`)}>
+            {activeHeroProperty ? (
               <>
-                {heroProperty.bedrooms}BHK | ₹ {(heroProperty.price / 10000000).toFixed(2)} CR.* <span className="font-medium text-2xl md:text-4xl">Onwards</span>
+                {activeHeroProperty.bedrooms}BHK | ₹ {(activeHeroProperty.price / 10000000).toFixed(2)} CR.* <span className="font-medium text-2xl md:text-4xl">Onwards</span>
               </>
             ) : (
               <>
@@ -113,8 +133,8 @@ export const HomePage: React.FC<HomePageProps> = ({ initialCity, onNavigate }) =
             )}
           </h1>
           <p className="text-white text-base md:text-xl font-bold mt-2 drop-shadow-md">
-            {heroProperty ? (
-              <>{heroProperty.title.substring(0, 30).toUpperCase()}... <span className="font-normal opacity-90">{heroProperty.locality.toUpperCase()}, {heroProperty.city.toUpperCase()}</span></>
+            {activeHeroProperty ? (
+              <>{activeHeroProperty.title.substring(0, 30).toUpperCase()}... <span className="font-normal opacity-90">{activeHeroProperty.locality.toUpperCase()}, {activeHeroProperty.city.toUpperCase()}</span></>
             ) : (
               <>KFG DEVELOPERS <span className="font-normal opacity-90">SECTOR 70A, GURGAON</span></>
             )}
@@ -220,39 +240,46 @@ export const HomePage: React.FC<HomePageProps> = ({ initialCity, onNavigate }) =
           <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest px-2">GET STARTED WITH EXPLORING REAL ESTATE OPTIONS</span>
         </div>
         
-        <div className="flex gap-4 overflow-x-auto hide-scrollbar pb-4 -mx-4 px-4 sm:mx-0 sm:px-0">
-          {[
-            { title: 'Buying a home', img: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&q=80&w=300&h=200', action: () => executeSearch({ listingType: 'buy' }) },
-            { title: 'Renting a home', img: 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&q=80&w=300&h=200', action: () => executeSearch({ listingType: 'rent' }) },
-            { title: 'Invest in Real Estate', img: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&q=80&w=300&h=200', tag: 'NEW', action: () => executeSearch() },
-            { title: 'Sell/Rent your property', img: 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&q=80&w=300&h=200', action: () => onNavigate('/listings/new') },
-            { title: 'Plots/Land', img: 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&q=80&w=300&h=200', tag: 'NEW', action: () => executeSearch({ propertyTypes: ['Plot'] }) },
-            { title: 'Explore Insights', img: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80&w=300&h=200', action: () => {} },
-            { title: 'PG / Co-living', img: 'https://images.unsplash.com/photo-1555854877-bab0e564b8d5?auto=format&fit=crop&q=80&w=300&h=200', action: () => executeSearch({ listingType: 'rent' }) },
-          ].map((option, i) => (
-            <div key={i} onClick={option.action} className="flex-shrink-0 w-44 group cursor-pointer">
-              <div className="relative rounded-xl overflow-hidden bg-white shadow-sm border border-slate-200 aspect-[4/3] mb-3">
-                <img src={option.img} alt={option.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-                {option.tag && (
-                  <span className="absolute top-2 right-2 bg-rose-600 text-white text-[9px] font-bold px-1.5 py-0.5 rounded shadow-sm uppercase">
-                    {option.tag}
-                  </span>
-                )}
-                {option.title === 'Sell/Rent your property' && (
-                  <div className="absolute inset-x-0 bottom-0 top-0 flex flex-col items-center justify-center bg-white/90 p-2 text-center">
-                    <span className="text-xs font-bold text-slate-800 leading-tight">Sell faster at the right price!</span>
-                  </div>
-                )}
+        <div className="relative group">
+          <div ref={carouselRef} className="flex gap-4 overflow-x-auto hide-scrollbar pb-4 -mx-4 px-4 sm:mx-0 sm:px-0 scroll-smooth">
+            {[
+              { title: 'Buying a home', img: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&q=80&w=300&h=200', action: () => executeSearch({ listingType: 'buy' }) },
+              { title: 'Renting a home', img: 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&q=80&w=300&h=200', action: () => executeSearch({ listingType: 'rent' }) },
+              { title: 'Invest in Real Estate', img: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&q=80&w=300&h=200', tag: 'NEW', action: () => executeSearch() },
+              { title: 'Sell/Rent your property', img: 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&q=80&w=300&h=200', action: () => onNavigate('/listings/new') },
+              { title: 'Plots/Land', img: 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&q=80&w=300&h=200', tag: 'NEW', action: () => executeSearch({ propertyTypes: ['Plot'] }) },
+              { title: 'PG / Co-living', img: 'https://images.unsplash.com/photo-1555854877-bab0e564b8d5?auto=format&fit=crop&q=80&w=300&h=200', action: () => executeSearch({ listingType: 'rent' }) },
+            ].map((option, i) => (
+              <div key={i} onClick={option.action} className="flex-shrink-0 w-44 group/item cursor-pointer">
+                <div className="relative rounded-xl overflow-hidden bg-white shadow-sm border border-slate-200 aspect-[4/3] mb-3">
+                  <img src={option.img} alt={option.title} className="w-full h-full object-cover group-hover/item:scale-105 transition-transform duration-300" />
+                  {option.tag && (
+                    <span className="absolute top-2 right-2 bg-rose-600 text-white text-[9px] font-bold px-1.5 py-0.5 rounded shadow-sm uppercase">
+                      {option.tag}
+                    </span>
+                  )}
+                  {option.title === 'Sell/Rent your property' && (
+                    <div className="absolute inset-x-0 bottom-0 top-0 flex flex-col items-center justify-center bg-white p-3 text-center">
+                      <div className="w-14 h-14 rounded-full bg-rose-50 flex items-center justify-center mb-2 shadow-sm border-2 border-rose-100 text-rose-500">
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path></svg>
+                      </div>
+                      <span className="text-xs font-bold text-slate-800 leading-tight">Sell faster at the right price!</span>
+                    </div>
+                  )}
+                </div>
+                <h3 className="text-center text-[13px] font-semibold text-slate-700 group-hover/item:text-rose-600 transition-colors">{option.title}</h3>
               </div>
-              <h3 className="text-center text-[13px] font-semibold text-slate-700 group-hover:text-rose-600 transition-colors">{option.title}</h3>
-            </div>
-          ))}
-          
-          <div className="flex-shrink-0 w-12 flex items-center justify-center">
-            <button className="w-8 h-8 rounded-full bg-white border border-slate-200 shadow-sm flex items-center justify-center text-slate-500 hover:text-slate-900 cursor-pointer">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"></path></svg>
-            </button>
+            ))}
           </div>
+          
+          <button 
+            onClick={() => executeSearch()} 
+            className="absolute top-1/2 -right-4 -translate-y-1/2 w-10 h-10 rounded-full bg-white border border-slate-200 shadow-md flex items-center justify-center text-slate-600 hover:text-white hover:bg-rose-500 hover:border-rose-500 cursor-pointer z-10 opacity-0 group-hover:opacity-100 transition-all hidden sm:flex"
+            aria-label="View all properties"
+            title="Go to Search"
+          >
+            <svg className="w-5 h-5 ml-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"></path></svg>
+          </button>
         </div>
       </section>
 
@@ -438,3 +465,4 @@ export const HomePage: React.FC<HomePageProps> = ({ initialCity, onNavigate }) =
     </div>
   );
 };
+

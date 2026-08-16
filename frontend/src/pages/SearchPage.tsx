@@ -45,6 +45,14 @@ export const SearchPage: React.FC = () => {
   
   const [selectedPropertyForInquiry, setSelectedPropertyForInquiry] = useState<Property | null>(null);
 
+  // Listen to searchParams changes (e.g. when navbar city changes)
+  useEffect(() => {
+    const cityFromUrl = searchParams?.get('city') || undefined;
+    if (cityFromUrl !== filters.city) {
+      setFilters(prev => ({ ...prev, city: cityFromUrl }));
+    }
+  }, [searchParams?.get('city')]);
+
   // Sync state to URL without full reload
   useEffect(() => {
     const query = new URLSearchParams();
@@ -137,6 +145,7 @@ export const SearchPage: React.FC = () => {
               onChange={(e) => handleFilterChange({ search: e.target.value })}
               placeholder="Search by locality, society, or landmark..." 
               className="w-full bg-white text-[13px] font-medium text-slate-800 placeholder-slate-400 rounded-lg pl-9 pr-4 py-2 outline-none"
+              suppressHydrationWarning
             />
           </div>
           <button 
@@ -212,7 +221,7 @@ export const SearchPage: React.FC = () => {
                   <Search className="w-8 h-8 text-slate-400" />
                 </div>
                 <h3 className="text-lg font-bold text-slate-800 mb-2">No properties found</h3>
-                <p className="text-slate-500 mb-6">We couldn't find any properties matching your current filters.</p>
+                <p className="text-slate-500 mb-6">We couldn&apos;t find any properties matching your current filters.</p>
                 <button 
                   onClick={handleResetFilters}
                   className="bg-rose-600 hover:bg-rose-700 text-white px-6 py-2.5 rounded-lg font-bold transition-colors"

@@ -14,7 +14,7 @@ const pool = new Pool({
 // =================== Seed Data Constants ===================
 
 const CITIES = ['Mumbai', 'Bengaluru', 'Delhi-NCR', 'Pune', 'Hyderabad', 'Chennai', 'Kolkata', 'Ahmedabad'];
-const PROPERTY_TYPES = ['Apartment', 'Villa', 'Builder Floor', 'Studio', 'Penthouse'];
+const PROPERTY_TYPES = ['Apartment', 'Villa', 'Builder Floor', 'Studio', 'Penthouse', 'Plot', 'Land'];
 
 const LOCALITIES: Record<string, string[]> = {
   'Mumbai': ['Bandra', 'Andheri', 'Powai', 'Worli', 'Juhu', 'Malad', 'Goregaon', 'Thane'],
@@ -114,6 +114,16 @@ const IMAGES_BY_TYPE: Record<string, string[]> = {
     'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1200&auto=format&fit=crop&q=80',
     'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=1200&auto=format&fit=crop&q=80',
   ],
+  'Plot': [
+    'https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=1200&auto=format&fit=crop&q=80',
+    'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=1200&auto=format&fit=crop&q=80',
+    'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1200&auto=format&fit=crop&q=80',
+  ],
+  'Land': [
+    'https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=1200&auto=format&fit=crop&q=80',
+    'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=1200&auto=format&fit=crop&q=80',
+    'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1200&auto=format&fit=crop&q=80',
+  ]
 };
 
 // =================== Utility Functions ===================
@@ -163,21 +173,7 @@ async function runSeed() {
   const client = await pool.connect();
   
   try {
-    // 1. Run migrations
-    console.log('Running migrations...');
-    const migrationPath = path.join(process.cwd(), 'db/migrations/001_initial_schema.sql');
-    const migrationSql = fs.readFileSync(migrationPath, 'utf8');
-    
-    // Drop tables for a clean slate
-    await client.query(`
-      DROP TABLE IF EXISTS refresh_tokens CASCADE;
-      DROP TABLE IF EXISTS inquiries CASCADE;
-      DROP TABLE IF EXISTS properties CASCADE;
-      DROP TABLE IF EXISTS users CASCADE;
-    `);
-    
-    await client.query(migrationSql);
-    console.log('Migrations completed successfully.');
+    // Note: Migrations should be run before this script using `npm run db:migrate`
 
     // 2. Insert Demo Users
     console.log('Seeding demo users...');
@@ -215,9 +211,9 @@ async function runSeed() {
         const locality = LOCALITIES[city][localityIdx];
         const listingType = Math.random() > 0.3 ? 'rent' : 'buy';
         const propType = randomChoice(PROPERTY_TYPES);
-        const bedrooms = propType === 'Studio' ? 1 : randomInt(1, 5);
-        const bathrooms = Math.max(1, bedrooms - 1 + randomInt(0, 2));
-        const balconies = randomInt(0, 3);
+        const bedrooms = (propType === 'Plot' || propType === 'Land') ? 0 : (propType === 'Studio' ? 1 : randomInt(1, 5));
+        const bathrooms = (propType === 'Plot' || propType === 'Land') ? 0 : Math.max(1, bedrooms - 1 + randomInt(0, 2));
+        const balconies = (propType === 'Plot' || propType === 'Land') ? 0 : randomInt(0, 3);
         
         // Price logic
         let price = 0;
@@ -236,10 +232,10 @@ async function runSeed() {
         const pricePerSqft = listingType === 'buy' ? Math.round(price / carpetArea) : null;
         const maintenanceCharges = randomInt(2000, 8000);
         
-        const furnishing = randomChoice(FURNISHING_TYPES);
+        const furnishing = (propType === 'Plot' || propType === 'Land') ? 'Unfurnished' : randomChoice(FURNISHING_TYPES);
         const facing = randomChoice(FACING_DIRECTIONS);
-        const floorNo = propType === 'Villa' ? 0 : randomInt(1, 20);
-        const totalFloors = propType === 'Villa' ? randomInt(2, 4) : floorNo + randomInt(0, 10);
+        const floorNo = (propType === 'Villa' || propType === 'Plot' || propType === 'Land') ? 0 : randomInt(1, 20);
+        const totalFloors = (propType === 'Villa' || propType === 'Plot' || propType === 'Land') ? randomInt(0, 4) : floorNo + randomInt(0, 10);
         const ageOfProperty = randomChoice(AGE_OPTIONS);
         const availableFrom = randomBool(0.4) ? 'Immediate' : `${randomInt(1, 12)}/${2026}`;
         

@@ -5,7 +5,7 @@ import { Property, Inquiry } from '@/types';
 import { sendInquiry } from '@/services/api';
 import { formatIndianPrice } from '@/utils/formatters';
 import { useAuth } from '@/context/AuthContext';
-import { X, Calendar, Clock, User as UserIcon, Phone, Mail, MessageSquare, CheckCircle, ShieldCheck, Sparkles, Building } from 'lucide-react';
+import { X, Calendar, Clock, User as UserIcon, Phone, Mail, MessageSquare, CheckCircle, ShieldCheck, Sparkles, Home } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
 interface InquiryModalProps {
@@ -104,7 +104,7 @@ export const InquiryModal: React.FC<InquiryModalProps> = ({
         <div className="bg-slate-900 px-6 py-4 text-white flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-lg bg-rose-500/20 text-rose-400 flex items-center justify-center">
-              <Building className="w-4 h-4" />
+              <Home className="w-4 h-4" />
             </div>
             <div>
               <h3 className="font-bold text-base leading-tight">
@@ -364,3 +364,5 @@ export const InquiryModal: React.FC<InquiryModalProps> = ({
     </div>
   );
 };
+
+

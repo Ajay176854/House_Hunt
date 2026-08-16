@@ -178,13 +178,13 @@ router.get("/:id", listingsController.getListingById);
  */
 const parseMultipartBody = (req: any, res: any, next: any) => {
   if (req.body) {
-    const numberFields = ['price', 'maintenanceCharges', 'depositAmount', 'bedrooms', 'bathrooms', 'balconies', 'carpetAreaSqFt', 'superBuiltUpSqFt', 'pricePerSqFt', 'floorNo', 'totalFloors'];
+    const numberFields = ['price', 'maintenanceCharges', 'depositAmount', 'bedrooms', 'bathrooms', 'balconies', 'carpetAreaSqFt', 'superBuiltUpAreaSqFt', 'pricePerSqFt', 'floorNo', 'totalFloors'];
     for (const field of numberFields) {
       if (req.body[field] !== undefined) {
         req.body[field] = Number(req.body[field]);
       }
     }
-    const jsonFields = ['amenities', 'preferredTenants'];
+    const jsonFields = ['amenities', 'preferredTenants', 'images'];
     for (const field of jsonFields) {
       if (typeof req.body[field] === 'string') {
         try { req.body[field] = JSON.parse(req.body[field]); } catch (e) {}

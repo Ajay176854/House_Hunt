@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import {
-  Building2,
+  Home,
   Heart,
   PlusCircle,
   User,
@@ -16,8 +16,8 @@ import {
   Menu,
   X,
   Headphones,
-  ArrowUpRight,
-  CheckCircle2,
+  TrendingUp,
+  CheckCircle,
   Lightbulb,
   Phone,
   Mail,
@@ -58,7 +58,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               className="flex items-center gap-2.5 cursor-pointer group shrink-0"
             >
               <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-rose-600 to-rose-500 text-white flex items-center justify-center shadow-md shadow-rose-500/20 group-hover:scale-105 transition-transform">
-                <Building2 className="w-5 h-5" />
+                <Home className="w-5 h-5" />
               </div>
               <div>
                 <span className="font-black text-xl tracking-tight text-white leading-none">
@@ -122,7 +122,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                     <a href="#" onClick={(e) => { e.preventDefault(); onNavigate('/search'); }} className="px-6 py-2.5 text-[13px] text-slate-700 font-medium hover:bg-slate-100 flex items-center gap-2 uppercase">
                       INSIGHTS <span className="bg-[#0052cc] text-white text-[9px] font-bold px-1.5 py-0.5 rounded shadow-sm">NEW</span>
                     </a>
-                    <a href="#" onClick={(e) => { e.preventDefault(); onNavigate('/search'); }} className="px-6 py-2.5 text-[13px] text-slate-700 font-medium hover:bg-slate-100 hover:text-blue-700 uppercase">ARTICLES & NEWS</a>
+                    <a href="#" onClick={(e) => { e.preventDefault(); onNavigate('/articles'); }} className="px-6 py-2.5 text-[13px] text-slate-700 font-medium hover:bg-slate-100 hover:text-blue-700 uppercase">ARTICLES & NEWS</a>
                   </div>
                   
                   <div className="px-6 pt-12">
@@ -148,7 +148,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
                     {/* Right Column: Insights Feature Card */}
                     <div className="w-[280px] bg-[#f2f8fc] rounded-xl p-5 border border-blue-100 relative shadow-sm h-fit">
-                      <ArrowUpRight className="w-5 h-5 text-blue-600 absolute top-4 right-4" />
+                      <TrendingUp className="w-5 h-5 text-blue-600 absolute top-4 right-4" />
                       
                       <div className="flex items-center gap-3 mb-6">
                         <div className="w-9 h-11 bg-blue-600 rounded flex flex-col items-center justify-center relative overflow-hidden shrink-0 shadow-sm">
@@ -169,7 +169,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                           'Tools, Utilities & more'
                         ].map(feature => (
                           <div key={feature} className="flex items-start gap-2.5">
-                            <CheckCircle2 className="w-4 h-4 text-blue-500 shrink-0 mt-0.5" />
+                            <CheckCircle className="w-4 h-4 text-blue-500 shrink-0 mt-0.5" />
                             <span className="text-[13px] text-slate-700 font-medium leading-tight">{feature}</span>
                           </div>
                         ))}
@@ -199,7 +199,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                     <a href="#" onClick={(e) => { e.preventDefault(); onNavigate('/search'); }} className="px-6 py-2.5 text-[13px] text-slate-700 font-medium hover:bg-slate-100 flex items-center gap-2 uppercase">
                       INSIGHTS <span className="bg-[#0052cc] text-white text-[9px] font-bold px-1.5 py-0.5 rounded shadow-sm">NEW</span>
                     </a>
-                    <a href="#" onClick={(e) => { e.preventDefault(); onNavigate('/search'); }} className="px-6 py-2.5 text-[13px] text-slate-700 font-medium hover:bg-slate-100 hover:text-blue-700 uppercase">ARTICLES & NEWS</a>
+                    <a href="#" onClick={(e) => { e.preventDefault(); onNavigate('/articles'); }} className="px-6 py-2.5 text-[13px] text-slate-700 font-medium hover:bg-slate-100 hover:text-blue-700 uppercase">ARTICLES & NEWS</a>
                   </div>
                   
                   <div className="px-6 pt-12">
@@ -225,7 +225,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
                     {/* Right Column: Insights Feature Card */}
                     <div className="w-[280px] bg-[#f2f8fc] rounded-xl p-5 border border-blue-100 relative shadow-sm h-fit">
-                      <ArrowUpRight className="w-5 h-5 text-blue-600 absolute top-4 right-4" />
+                      <TrendingUp className="w-5 h-5 text-blue-600 absolute top-4 right-4" />
                       
                       <div className="flex items-center gap-3 mb-6">
                         <div className="w-9 h-11 bg-blue-600 rounded flex flex-col items-center justify-center relative overflow-hidden shrink-0 shadow-sm">
@@ -246,7 +246,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                           'Tools, Utilities & more'
                         ].map(feature => (
                           <div key={feature} className="flex items-start gap-2.5">
-                            <CheckCircle2 className="w-4 h-4 text-blue-500 shrink-0 mt-0.5" />
+                            <CheckCircle className="w-4 h-4 text-blue-500 shrink-0 mt-0.5" />
                             <span className="text-[13px] text-slate-700 font-medium leading-tight">{feature}</span>
                           </div>
                         ))}
@@ -281,7 +281,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                     <a href="#" onClick={(e) => { e.preventDefault(); onNavigate('/search'); }} className="px-6 py-2.5 text-[13px] text-slate-700 font-medium hover:bg-slate-100 flex items-center gap-2 uppercase">
                       INSIGHTS <span className="bg-[#0052cc] text-white text-[9px] font-bold px-1.5 py-0.5 rounded shadow-sm">NEW</span>
                     </a>
-                    <a href="#" onClick={(e) => { e.preventDefault(); onNavigate('/search'); }} className="px-6 py-2.5 text-[13px] text-slate-700 font-medium hover:bg-slate-100 hover:text-blue-700 uppercase">ARTICLES & NEWS</a>
+                    <a href="#" onClick={(e) => { e.preventDefault(); onNavigate('/articles'); }} className="px-6 py-2.5 text-[13px] text-slate-700 font-medium hover:bg-slate-100 hover:text-blue-700 uppercase">ARTICLES & NEWS</a>
                   </div>
                   
                   <div className="px-6 pt-12">
@@ -372,7 +372,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
                     {/* Right Column: Insights Feature Card */}
                     <div className="w-[280px] bg-[#f2f8fc] rounded-xl p-5 border border-blue-100 relative shadow-sm h-fit">
-                      <ArrowUpRight className="w-5 h-5 text-blue-600 absolute top-4 right-4" />
+                      <TrendingUp className="w-5 h-5 text-blue-600 absolute top-4 right-4" />
                       
                       <div className="flex items-center gap-3 mb-6">
                         <div className="w-9 h-11 bg-blue-600 rounded flex flex-col items-center justify-center relative overflow-hidden shrink-0 shadow-sm">
@@ -392,7 +392,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                           'Tools, Utilities & more'
                         ].map(feature => (
                           <div key={feature} className="flex items-start gap-2.5">
-                            <CheckCircle2 className="w-4 h-4 text-blue-500 shrink-0 mt-0.5" />
+                            <CheckCircle className="w-4 h-4 text-blue-500 shrink-0 mt-0.5" />
                             <span className="text-[13px] text-slate-700 font-medium leading-tight">{feature}</span>
                           </div>
                         ))}
@@ -582,7 +582,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                         <button onClick={() => { onNavigate('/search'); setShowUserMenu(false); }} className="w-full text-left text-xs font-semibold text-slate-700 hover:text-rose-600 flex justify-between items-center cursor-pointer">
                           Insights <span className="bg-rose-50 text-rose-600 px-1 py-0.5 rounded text-[9px] uppercase font-bold">New</span>
                         </button>
-                        <button onClick={() => { onNavigate('/search'); setShowUserMenu(false); }} className="w-full text-left text-xs font-semibold text-slate-700 hover:text-rose-600 cursor-pointer">Articles & News</button>
+                        <button onClick={() => { onNavigate('/articles'); setShowUserMenu(false); }} className="w-full text-left text-xs font-semibold text-slate-700 hover:text-rose-600 cursor-pointer">Articles & News</button>
                         <button onClick={() => { onNavigate('/'); setShowUserMenu(false); }} className="w-full text-left text-xs font-semibold text-slate-700 hover:text-rose-600 cursor-pointer">About Us</button>
                         <button onClick={() => { onNavigate('/'); setShowUserMenu(false); }} className="w-full text-left text-xs font-semibold text-slate-700 hover:text-rose-600 cursor-pointer">Get Help</button>
                       </div>

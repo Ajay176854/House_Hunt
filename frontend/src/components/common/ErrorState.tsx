@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { AlertCircle, Lock, ShieldAlert, FileQuestion, RefreshCw, Home, LogIn } from 'lucide-react';
+import { AlertCircle, Lock, ShieldAlert, HelpCircle, RefreshCw, Home, LogIn } from 'lucide-react';
 
 interface ErrorStateProps {
   status?: number;
@@ -87,7 +87,7 @@ export const ErrorState: React.FC<ErrorStateProps> = ({
     return (
       <div className="min-h-[450px] flex flex-col items-center justify-center p-8 text-center bg-white rounded-2xl border border-slate-200 shadow-sm max-w-lg mx-auto my-12">
         <div className="w-16 h-16 bg-slate-100 text-slate-500 rounded-full flex items-center justify-center mb-4">
-          <FileQuestion className="w-8 h-8" />
+          <HelpCircle className="w-8 h-8" />
         </div>
         <h3 className="text-xl font-bold text-slate-900 mb-2">
           {title || 'Listing Not Found'}
@@ -144,3 +144,4 @@ export const ErrorState: React.FC<ErrorStateProps> = ({
     </div>
   );
 };
+

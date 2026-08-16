@@ -189,7 +189,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onNavigate }) => {
           </form>
 
           <p className="text-center text-xs text-slate-500">
-            Don't have an account?{' '}
+            Don&apos;t have an account?{' '}
             <button
               onClick={() => onNavigate('/register')}
               className="text-rose-600 font-bold hover:underline cursor-pointer"

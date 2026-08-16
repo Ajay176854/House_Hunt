@@ -1,15 +1,26 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { HomePage } from '@/pages/HomePage';
+import { Suspense } from 'react';
 
-export default function Home() {
+function HomeContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const city = searchParams?.get('city') || 'All Cities';
 
   return (
     <HomePage
-      initialCity="All Cities"
+      initialCity={city}
       onNavigate={(path: string) => router.push(path)}
     />
+  );
+}
+
+export default function Home() {
+  return (
+    <Suspense fallback={null}>
+      <HomeContent />
+    </Suspense>
   );
 }

@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
-import { usePathname, useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
 
@@ -12,10 +12,35 @@ import { Footer } from '@/components/layout/Footer';
 export function AppShell({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const [selectedCity, setSelectedCity] = useState<string>('All Cities');
+
+  useEffect(() => {
+    const cityFromUrl = searchParams?.get('city');
+    if (cityFromUrl) {
+      setSelectedCity(cityFromUrl);
+    } else {
+      setSelectedCity('All Cities');
+    }
+  }, [searchParams]);
 
   const navigate = (path: string) => {
     router.push(path);
+  };
+
+  const handleCityChange = (city: string) => {
+    setSelectedCity(city);
+    const params = new URLSearchParams(searchParams?.toString() || '');
+    if (city && city !== 'All Cities') {
+      params.set('city', city);
+    } else {
+      params.delete('city');
+    }
+    
+    // Always navigate to the current page but with updated city param
+    // Unless we are not on / or /search, then just go to /
+    const targetPath = (pathname === '/' || pathname === '/search') ? pathname : '/';
+    router.push(`${targetPath}?${params.toString()}`);
   };
 
   return (
@@ -24,20 +49,14 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         currentPath={pathname || ''}
         onNavigate={navigate}
         selectedCity={selectedCity}
-        onCityChange={(city) => {
-          setSelectedCity(city);
-          if (pathname !== '/') router.push('/');
-        }}
+        onCityChange={handleCityChange}
       />
 
       <div className="flex-1">{children}</div>
 
       <Footer
         onNavigate={navigate}
-        onSelectCity={(city: string) => {
-          setSelectedCity(city);
-          router.push('/');
-        }}
+        onSelectCity={handleCityChange}
       />
     </div>
   );

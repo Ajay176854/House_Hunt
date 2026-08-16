@@ -10,7 +10,7 @@ import {
   IndianRupee,
   Layers,
   Image as ImageIcon,
-  CheckCircle2,
+  CheckCircle,
   Sparkles,
   Plus,
   Trash2,
@@ -570,7 +570,7 @@ export const PropertyForm: React.FC<PropertyFormProps> = ({
                     }`}
                   >
                     <span>{amenity}</span>
-                    {isChecked && <CheckCircle2 className="w-4 h-4 text-rose-600 shrink-0" />}
+                    {isChecked && <CheckCircle className="w-4 h-4 text-rose-600 shrink-0" />}
                   </button>
                 );
               })}

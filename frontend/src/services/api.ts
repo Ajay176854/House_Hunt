@@ -66,6 +66,7 @@ async function request<T>(endpoint: string, options: RequestInit = {}): Promise<
   const response = await fetch(`${API_BASE}${endpoint}`, {
     ...options,
     headers,
+    cache: 'no-store', // Prevent Next.js or browser caching
   });
 
   const data = await response.json().catch(() => ({}));

@@ -87,8 +87,8 @@ export const EditListingPage: React.FC<EditListingPageProps> = ({ propertyId, on
     );
   }
 
-  const handleUpdate = async (formData: Partial<Property>) => {
-    const res = await updateProperty(propertyId, formData);
+  const handleUpdate = async (formData: FormData | Partial<Property>) => {
+    const res = await updateProperty(propertyId, formData as any);
     setTimeout(() => {
       onNavigate(`/listings/${res.property.id}`);
     }, 600);

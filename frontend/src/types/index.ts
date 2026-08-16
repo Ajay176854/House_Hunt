@@ -114,6 +114,7 @@ export interface FilterParams {
   sort?: 'newest' | 'price_asc' | 'price_desc' | 'area_desc' | 'popular';
   cursor?: string;
   limit?: number;
+  page?: number;
 }
 
 export interface PaginatedResponse<T> {

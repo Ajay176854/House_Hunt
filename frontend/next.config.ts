@@ -23,6 +23,10 @@ const nextConfig: NextConfig = {
 
   // Enable React strict mode
   reactStrictMode: true,
+  
+  experimental: {
+    optimizePackageImports: [],
+  },
 };
 
 export default nextConfig;

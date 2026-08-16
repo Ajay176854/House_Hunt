@@ -408,7 +408,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigate }) => {
                     </div>
 
                     <div className="bg-slate-50 rounded-xl p-3 text-xs text-slate-700 border border-slate-100">
-                      "{inq.message}"
+                      &quot;{inq.message}&quot;
                     </div>
 
                     <div className="flex flex-wrap items-center justify-between gap-3 text-xs pt-1">
@@ -454,7 +454,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigate }) => {
             <div className="text-center">
               <h3 className="text-base font-bold text-slate-900">Delete Property Listing?</h3>
               <p className="text-xs text-slate-500 mt-1">
-                Are you sure you want to delete "{propertyToDelete.title}"? This action cannot be undone.
+                Are you sure you want to delete &quot;{propertyToDelete.title}&quot;? This action cannot be undone.
               </p>
             </div>
             <div className="grid grid-cols-2 gap-3 pt-2">

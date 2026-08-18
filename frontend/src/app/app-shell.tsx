@@ -45,8 +45,9 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
     router.push(`${targetPath}?${params.toString()}`);
   };
 
-  const hideNavbarPaths = ['/login', '/register', '/search'];
-  const showNavbar = !hideNavbarPaths.includes(pathname || '');
+  const hideNavbarExactPaths = ['/login', '/register', '/search'];
+  const hideNavbarPrefixes = ['/listings/'];
+  const showNavbar = !hideNavbarExactPaths.includes(pathname || '') && !hideNavbarPrefixes.some(prefix => pathname?.startsWith(prefix));
 
   return (
     <div className="min-h-screen flex flex-col">

@@ -115,7 +115,7 @@ export const SearchPage: React.FC = () => {
     window.history.replaceState({ ...window.history.state, as: newUrl, url: newUrl }, '', newUrl);
   }, [filters]);
 
-  const fetchListingData = useCallback(async (loadMore = false) => {
+  const fetchListingData = useCallback(async (loadMore = false, currentCursorStr?: string | null) => {
     if (loadMore) {
       setIsLoadingMore(true);
     } else {
@@ -124,8 +124,8 @@ export const SearchPage: React.FC = () => {
     setError(null);
     try {
       const currentFilters = { ...filters };
-      if (loadMore && nextCursor) {
-        currentFilters.cursor = nextCursor;
+      if (loadMore && currentCursorStr) {
+        currentFilters.cursor = currentCursorStr;
       } else {
         delete currentFilters.cursor;
       }
@@ -146,7 +146,7 @@ export const SearchPage: React.FC = () => {
       setIsLoading(false);
       setIsLoadingMore(false);
     }
-  }, [filters, nextCursor]);
+  }, [filters]);
 
   useEffect(() => {
     fetchListingData(false);
@@ -460,7 +460,7 @@ export const SearchPage: React.FC = () => {
                 {nextCursor && (
                   <div className="mt-8 flex justify-center">
                     <button
-                      onClick={() => fetchListingData(true)}
+                      onClick={() => fetchListingData(true, nextCursor)}
                       disabled={isLoadingMore}
                       className="bg-slate-900 hover:bg-slate-800 disabled:opacity-50 text-white px-8 py-3 rounded-lg font-bold transition-colors cursor-pointer"
                     >

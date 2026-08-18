@@ -197,6 +197,9 @@ async function runSeed() {
       { id: '33333333-3333-3333-3333-333333333333', name: 'Vikram Mehta', email: 'vikram.mehta@nobrokerdemo.in', role: 'builder', phone: '+91 99100 23456' },
       { id: '44444444-4444-4444-4444-444444444444', name: 'Ananya Reddy', email: 'ananya.reddy@nobrokerdemo.in', role: 'agent', phone: '+91 90088 54321' },
       { id: '55555555-5555-5555-5555-555555555555', name: 'Suresh Patel', email: 'suresh.patel@nobrokerdemo.in', role: 'builder', phone: '+91 87654 32100' },
+      { id: '66666666-6666-6666-6666-666666666666', name: 'Ajai A', email: 'aajay1118@gmail.com', role: 'user', phone: '+91 91234 56789' },
+      { id: '77777777-7777-7777-7777-777777777777', name: 'Ajai A', email: 'dmin@example.com', role: 'user', phone: '+91 91234 56780' },
+      { id: '88888888-8888-8888-8888-888888888888', name: 'E2E Test User', email: 'testuser@example.com', role: 'user', phone: '+91 91234 56781' },
     ];
 
     for (const user of demoUsers) {

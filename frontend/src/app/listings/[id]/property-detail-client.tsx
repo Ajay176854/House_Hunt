@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { PropertyDetailPage as PropertyDetailPageComponent } from '@/pages/PropertyDetailPage';
+import { PropertyDetailPage as PropertyDetailPageComponent } from '@/views/PropertyDetailPage';
 import { Property } from '@/types';
 
 interface Props {

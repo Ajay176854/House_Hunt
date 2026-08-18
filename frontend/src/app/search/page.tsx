@@ -1,5 +1,10 @@
-import { SearchPage } from '@/pages/SearchPage';
+import { SearchPage } from '@/views/SearchPage';
+import { Suspense } from 'react';
 
 export default function SearchRoute() {
-  return <SearchPage />;
+  return (
+    <Suspense fallback={null}>
+      <SearchPage />
+    </Suspense>
+  );
 }

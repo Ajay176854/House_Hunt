@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { EditListingPage } from '@/pages/EditListingPage';
+import { EditListingPage } from '@/views/EditListingPage';
 import { use } from 'react';
 
 export default function EditListing({

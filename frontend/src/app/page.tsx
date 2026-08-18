@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter, useSearchParams } from 'next/navigation';
-import { HomePage } from '@/pages/HomePage';
+import { HomePage } from '@/views/HomePage';
 import { Suspense } from 'react';
 
 function HomeContent() {

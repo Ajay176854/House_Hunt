@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { SavedPage } from '@/pages/SavedPage';
+import { SavedPage } from '@/views/SavedPage';
 
 export default function Saved() {
   const router = useRouter();

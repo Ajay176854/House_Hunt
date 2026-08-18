@@ -41,7 +41,7 @@ const ARTICLES = [
     excerpt: 'A comprehensive guide on lock-in periods, maintenance charges, and eviction clauses to ensure you are protected as a tenant.',
     author: 'Sneha Gupta',
     date: 'Oct 05, 2026',
-    image: 'https://images.unsplash.com/photo-1450101499163-c8848c66cb85?auto=format&fit=crop&q=80&w=800&h=500',
+    image: 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&q=80&w=800&h=500',
     readTime: '4 min read'
   },
   {

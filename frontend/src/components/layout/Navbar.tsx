@@ -362,12 +362,12 @@ export const Navbar: React.FC<NavbarProps> = ({
                       <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4">CHECK OVERVIEW OF TOP CITIES</h4>
                       <div className="grid grid-cols-2 gap-x-4 gap-y-3.5">
                         {displayCities.map(city => (
-                          <a key={city} href="#" onClick={(e) => { e.preventDefault(); onNavigate('/search'); }} className="block text-[13px] font-bold text-slate-800 hover:text-blue-600 transition-colors">
+                          <a key={city} href="#" onClick={(e) => { e.preventDefault(); onNavigate(`/insights/city-overview?city=${encodeURIComponent(city)}`); }} className="block text-[13px] font-bold text-slate-800 hover:text-blue-600 transition-colors">
                             {city}
                           </a>
                         ))}
                       </div>
-                      <a href="#" onClick={(e) => { e.preventDefault(); onNavigate('/search'); }} className="inline-block mt-6 text-[12px] font-bold text-blue-600 hover:text-blue-700 underline">View All Insights</a>
+                      <a href="#" onClick={(e) => { e.preventDefault(); onNavigate('/insights/city-overview'); }} className="inline-block mt-6 text-[12px] font-bold text-blue-600 hover:text-blue-700 underline">View All Insights</a>
                     </div>
 
                     {/* Right Column: Insights Feature Card */}

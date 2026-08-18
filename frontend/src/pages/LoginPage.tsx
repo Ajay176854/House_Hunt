@@ -132,10 +132,13 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onNavigate }) => {
                   id="email"
                   type="email"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(e) => setEmail(e.target.value.toLowerCase())}
                   className="block w-full pl-10 pr-3 py-2.5 text-xs border border-slate-200 rounded-xl focus:ring-2 focus:ring-rose-500 focus:border-rose-500 bg-white transition-all outline-none"
                   placeholder="you@example.com"
                   required
+                  autoCapitalize="none"
+                  autoCorrect="off"
+                  suppressHydrationWarning
                 />
               </div>
             </div>

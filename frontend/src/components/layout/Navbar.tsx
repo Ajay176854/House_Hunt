@@ -116,9 +116,9 @@ export const Navbar: React.FC<NavbarProps> = ({
                 {/* Left Sidebar */}
                 <div className="w-64 bg-slate-50 flex flex-col justify-between py-6">
                   <div className="flex flex-col">
-                    <a href="#" onClick={(e) => { e.preventDefault(); onNavigate('/search'); }} className="px-6 py-2.5 text-[13px] text-blue-700 font-semibold uppercase hover:bg-slate-100">BUY A HOME</a>
-                    <a href="#" onClick={(e) => { e.preventDefault(); onNavigate('/search'); }} className="px-6 py-2.5 text-[13px] text-slate-700 font-medium hover:bg-slate-100 hover:text-blue-700 uppercase">Land/Plot</a>
-                    <a href="#" onClick={(e) => { e.preventDefault(); onNavigate('/search'); }} className="px-6 py-2.5 text-[13px] text-slate-700 font-medium hover:bg-slate-100 hover:text-blue-700 uppercase">COMMERCIAL</a>
+                    <a href="#" onClick={(e) => { e.preventDefault(); onNavigate('/search?listingType=buy'); }} className="px-6 py-2.5 text-[13px] text-blue-700 font-semibold uppercase hover:bg-slate-100">BUY A HOME</a>
+                    <a href="#" onClick={(e) => { e.preventDefault(); onNavigate('/search?listingType=buy&propertyTypes=Plot'); }} className="px-6 py-2.5 text-[13px] text-slate-700 font-medium hover:bg-slate-100 hover:text-blue-700 uppercase">Land/Plot</a>
+                    <a href="#" onClick={(e) => { e.preventDefault(); onNavigate('/search?propertyTypes=Commercial'); }} className="px-6 py-2.5 text-[13px] text-slate-700 font-medium hover:bg-slate-100 hover:text-blue-700 uppercase">COMMERCIAL</a>
                     <a href="#" onClick={(e) => { e.preventDefault(); onNavigate('/search'); }} className="px-6 py-2.5 text-[13px] text-slate-700 font-medium hover:bg-slate-100 flex items-center gap-2 uppercase">
                       INSIGHTS <span className="bg-[#0052cc] text-white text-[9px] font-bold px-1.5 py-0.5 rounded shadow-sm">NEW</span>
                     </a>
@@ -139,7 +139,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                       <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4">TOP CITIES</h4>
                       <div className="space-y-3.5">
                         {displayCities.map(city => (
-                          <a key={city} href="#" onClick={(e) => { e.preventDefault(); onNavigate('/search'); }} className="block text-[13px] font-bold text-slate-800 hover:text-blue-600 transition-colors">
+                          <a key={city} href="#" onClick={(e) => { e.preventDefault(); onNavigate(`/search?city=${encodeURIComponent(city)}&listingType=buy`); }} className="block text-[13px] font-bold text-slate-800 hover:text-blue-600 transition-colors">
                             Property in {city}
                           </a>
                         ))}
@@ -193,9 +193,9 @@ export const Navbar: React.FC<NavbarProps> = ({
                 {/* Left Sidebar */}
                 <div className="w-64 bg-slate-50 flex flex-col justify-between py-6">
                   <div className="flex flex-col">
-                    <a href="#" onClick={(e) => { e.preventDefault(); onNavigate('/search'); }} className="px-6 py-2.5 text-[13px] text-blue-700 font-semibold uppercase hover:bg-slate-100">RENT A HOME</a>
-                    <a href="#" onClick={(e) => { e.preventDefault(); onNavigate('/search'); }} className="px-6 py-2.5 text-[13px] text-slate-700 font-medium hover:bg-slate-100 hover:text-blue-700 uppercase">PG/Co-living</a>
-                    <a href="#" onClick={(e) => { e.preventDefault(); onNavigate('/search'); }} className="px-6 py-2.5 text-[13px] text-slate-700 font-medium hover:bg-slate-100 hover:text-blue-700 uppercase">COMMERCIAL</a>
+                    <a href="#" onClick={(e) => { e.preventDefault(); onNavigate('/search?listingType=rent'); }} className="px-6 py-2.5 text-[13px] text-blue-700 font-semibold uppercase hover:bg-slate-100">RENT A HOME</a>
+                    <a href="#" onClick={(e) => { e.preventDefault(); onNavigate('/search?listingType=rent'); }} className="px-6 py-2.5 text-[13px] text-slate-700 font-medium hover:bg-slate-100 hover:text-blue-700 uppercase">PG/Co-living</a>
+                    <a href="#" onClick={(e) => { e.preventDefault(); onNavigate('/search?listingType=rent&propertyTypes=Commercial'); }} className="px-6 py-2.5 text-[13px] text-slate-700 font-medium hover:bg-slate-100 hover:text-blue-700 uppercase">COMMERCIAL</a>
                     <a href="#" onClick={(e) => { e.preventDefault(); onNavigate('/search'); }} className="px-6 py-2.5 text-[13px] text-slate-700 font-medium hover:bg-slate-100 flex items-center gap-2 uppercase">
                       INSIGHTS <span className="bg-[#0052cc] text-white text-[9px] font-bold px-1.5 py-0.5 rounded shadow-sm">NEW</span>
                     </a>
@@ -216,7 +216,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                       <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4">TOP CITIES</h4>
                       <div className="space-y-3.5">
                         {displayCities.map(city => (
-                          <a key={city} href="#" onClick={(e) => { e.preventDefault(); onNavigate('/search'); }} className="block text-[13px] font-bold text-slate-800 hover:text-blue-600 transition-colors">
+                          <a key={city} href="#" onClick={(e) => { e.preventDefault(); onNavigate(`/search?city=${encodeURIComponent(city)}&listingType=rent`); }} className="block text-[13px] font-bold text-slate-800 hover:text-blue-600 transition-colors">
                             Property for rent in {city}
                           </a>
                         ))}
@@ -312,12 +312,12 @@ export const Navbar: React.FC<NavbarProps> = ({
                   <div className="flex flex-col">
                     <h4 className="px-6 text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 mt-2">DEALER OFFERINGS</h4>
                     <a href="#" onClick={(e) => { e.preventDefault(); onNavigate('/listings/new'); }} className="px-6 py-2.5 text-[13px] text-slate-700 font-medium hover:bg-slate-100 hover:text-blue-700">Post Property</a>
-                    <a href="#" onClick={(e) => { e.preventDefault(); onNavigate('/search'); }} className="px-6 py-2.5 text-[13px] text-slate-700 font-medium hover:bg-slate-100 hover:text-blue-700">Dealer Services</a>
-                    <a href="#" onClick={(e) => { e.preventDefault(); onNavigate('/search'); }} className="px-6 py-2.5 text-[13px] text-slate-700 font-medium hover:bg-slate-100 hover:text-blue-700">My Listings</a>
-                    <a href="#" onClick={(e) => { e.preventDefault(); onNavigate('/search'); }} className="px-6 py-2.5 text-[13px] text-slate-700 font-medium hover:bg-slate-100 hover:text-blue-700">View Responses</a>
+                    <a href="#" onClick={(e) => { e.preventDefault(); onNavigate('/dealer-services'); }} className="px-6 py-2.5 text-[13px] text-slate-700 font-medium hover:bg-slate-100 hover:text-blue-700">Dealer Services</a>
+                    <a href="#" onClick={(e) => { e.preventDefault(); onNavigate('/dashboard'); }} className="px-6 py-2.5 text-[13px] text-slate-700 font-medium hover:bg-slate-100 hover:text-blue-700">My Listings</a>
+                    <a href="#" onClick={(e) => { e.preventDefault(); onNavigate('/dashboard'); }} className="px-6 py-2.5 text-[13px] text-slate-700 font-medium hover:bg-slate-100 hover:text-blue-700">View Responses</a>
                     <div className="my-2 border-t border-slate-200"></div>
                     <h4 className="px-6 text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 mt-2">RESEARCH AND ADVICE</h4>
-                    <a href="#" onClick={(e) => { e.preventDefault(); onNavigate('/search'); }} className="px-6 py-2.5 text-[13px] text-slate-700 font-medium hover:bg-slate-100 hover:text-blue-700">Are you a builder? click here</a>
+                    <a href="#" onClick={(e) => { e.preventDefault(); onNavigate('/builders'); }} className="px-6 py-2.5 text-[13px] text-slate-700 font-medium hover:bg-slate-100 hover:text-blue-700">Are you a builder? click here</a>
                   </div>
                 </div>
 
@@ -326,13 +326,13 @@ export const Navbar: React.FC<NavbarProps> = ({
                   <div className="text-center pt-8">
                      <h3 className="text-2xl font-black text-slate-900 mb-3 tracking-tight">Become a Verified Dealer</h3>
                      <p className="text-sm text-slate-600 mb-6 font-medium max-w-[280px] mx-auto">Get exclusive leads, better visibility, and premium dealer services.</p>
-                     <button className="px-6 py-2.5 bg-slate-900 text-white font-bold text-sm rounded-lg hover:bg-slate-800 transition-colors shadow-sm">
+                     <button onClick={() => onNavigate('/register-dealer')} className="px-6 py-2.5 bg-slate-900 text-white font-bold text-sm rounded-lg hover:bg-slate-800 transition-colors shadow-sm cursor-pointer">
                        Register as Dealer
                      </button>
                   </div>
                   <div className="pt-6 mt-6 border-t border-slate-100">
                     <p className="text-[11px] text-slate-400 font-medium">
-                      Dealer Support: <a href="#" onClick={(e) => { e.preventDefault(); onNavigate('/search'); }} className="text-slate-600 font-medium hover:text-blue-600">dealers@househunt.in</a> | <span className="font-bold text-slate-600">1800 41 99099</span>
+                      Dealer Support: <a href="mailto:dealers@househunt.in" className="text-slate-600 font-medium hover:text-blue-600">dealers@househunt.in</a> | <span className="font-bold text-slate-600">1800 41 99099</span>
                     </p>
                   </div>
                 </div>
@@ -347,10 +347,10 @@ export const Navbar: React.FC<NavbarProps> = ({
                 {/* Left Sidebar */}
                 <div className="w-64 bg-slate-50 flex flex-col py-6">
                   <div className="flex flex-col">
-                    <a href="#" onClick={(e) => { e.preventDefault(); onNavigate('/search'); }} className="px-6 py-2.5 text-[13px] text-blue-700 font-semibold uppercase hover:bg-slate-100">CITY OVERVIEW</a>
-                    <a href="#" onClick={(e) => { e.preventDefault(); onNavigate('/search'); }} className="px-6 py-2.5 text-[13px] text-slate-700 font-medium hover:bg-slate-100 hover:text-blue-700 uppercase">PRICE TRENDS</a>
-                    <a href="#" onClick={(e) => { e.preventDefault(); onNavigate('/search'); }} className="px-6 py-2.5 text-[13px] text-slate-700 font-medium hover:bg-slate-100 hover:text-blue-700 uppercase">LOCALITY RATINGS</a>
-                    <a href="#" onClick={(e) => { e.preventDefault(); onNavigate('/search'); }} className="px-6 py-2.5 text-[13px] text-slate-700 font-medium hover:bg-slate-100 hover:text-blue-700 uppercase">BUYING GUIDE</a>
+                    <a href="#" onClick={(e) => { e.preventDefault(); onNavigate('/insights/city-overview'); }} className="px-6 py-2.5 text-[13px] text-blue-700 font-semibold uppercase hover:bg-slate-100">CITY OVERVIEW</a>
+                    <a href="#" onClick={(e) => { e.preventDefault(); onNavigate('/insights/price-trends'); }} className="px-6 py-2.5 text-[13px] text-slate-700 font-medium hover:bg-slate-100 hover:text-blue-700 uppercase">PRICE TRENDS</a>
+                    <a href="#" onClick={(e) => { e.preventDefault(); onNavigate('/insights/locality-ratings'); }} className="px-6 py-2.5 text-[13px] text-slate-700 font-medium hover:bg-slate-100 hover:text-blue-700 uppercase">LOCALITY RATINGS</a>
+                    <a href="#" onClick={(e) => { e.preventDefault(); onNavigate('/insights/buying-guide'); }} className="px-6 py-2.5 text-[13px] text-slate-700 font-medium hover:bg-slate-100 hover:text-blue-700 uppercase">BUYING GUIDE</a>
                   </div>
                 </div>
 
@@ -569,7 +569,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                             <span className="text-xs font-semibold text-slate-700 group-hover:text-rose-600">For Owners</span>
                             <ChevronDown className="w-3 h-3 text-slate-400" />
                           </button>
-                          <button onClick={() => { onNavigate('/search'); setShowUserMenu(false); }} className="w-full flex justify-between items-center cursor-pointer group">
+                          <button onClick={() => { onNavigate('/dealer-services'); setShowUserMenu(false); }} className="w-full flex justify-between items-center cursor-pointer group">
                             <span className="text-xs font-semibold text-slate-700 group-hover:text-rose-600">For Dealers / Builders</span>
                             <ChevronDown className="w-3 h-3 text-slate-400" />
                           </button>
@@ -578,13 +578,13 @@ export const Navbar: React.FC<NavbarProps> = ({
 
                       {/* Other Links */}
                       <div className="pt-4 border-t border-slate-100 space-y-3 pb-2">
-                        <button onClick={() => { onNavigate('/search'); setShowUserMenu(false); }} className="w-full text-left text-xs font-semibold text-slate-700 hover:text-rose-600 cursor-pointer">Home Loans</button>
-                        <button onClick={() => { onNavigate('/search'); setShowUserMenu(false); }} className="w-full text-left text-xs font-semibold text-slate-700 hover:text-rose-600 flex justify-between items-center cursor-pointer">
+                        <button onClick={() => { onNavigate('/home-loans'); setShowUserMenu(false); }} className="w-full text-left text-xs font-semibold text-slate-700 hover:text-rose-600 cursor-pointer">Home Loans</button>
+                        <button onClick={() => { onNavigate('/insights/city-overview'); setShowUserMenu(false); }} className="w-full text-left text-xs font-semibold text-slate-700 hover:text-rose-600 flex justify-between items-center cursor-pointer">
                           Insights <span className="bg-rose-50 text-rose-600 px-1 py-0.5 rounded text-[9px] uppercase font-bold">New</span>
                         </button>
                         <button onClick={() => { onNavigate('/articles'); setShowUserMenu(false); }} className="w-full text-left text-xs font-semibold text-slate-700 hover:text-rose-600 cursor-pointer">Articles & News</button>
-                        <button onClick={() => { onNavigate('/'); setShowUserMenu(false); }} className="w-full text-left text-xs font-semibold text-slate-700 hover:text-rose-600 cursor-pointer">About Us</button>
-                        <button onClick={() => { onNavigate('/'); setShowUserMenu(false); }} className="w-full text-left text-xs font-semibold text-slate-700 hover:text-rose-600 cursor-pointer">Get Help</button>
+                        <button onClick={() => { onNavigate('/about-us'); setShowUserMenu(false); }} className="w-full text-left text-xs font-semibold text-slate-700 hover:text-rose-600 cursor-pointer">About Us</button>
+                        <button onClick={() => { onNavigate('/contact-us'); setShowUserMenu(false); }} className="w-full text-left text-xs font-semibold text-slate-700 hover:text-rose-600 cursor-pointer">Get Help</button>
                       </div>
                     </div>
                   </div>

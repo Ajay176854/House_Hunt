@@ -22,7 +22,7 @@ interface FilterBarProps {
   totalResults: number;
 }
 
-export const CITIES = ['All Cities', 'Bengaluru', 'Mumbai', 'Delhi-NCR', 'Hyderabad', 'Pune'];
+export const CITIES = ['All Cities', 'Bengaluru', 'Mumbai', 'Delhi-NCR', 'Hyderabad', 'Pune', 'Chennai', 'Kolkata', 'Ahmedabad'];
 
 export const PROPERTY_TYPES: PropertyType[] = [
   'Apartment',

@@ -76,6 +76,9 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
           alt={property.title}
           referrerPolicy="no-referrer"
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+          onError={(e) => {
+            e.currentTarget.src = 'https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=800&auto=format&fit=crop&q=80';
+          }}
         />
 
         {/* Carousel controls */}

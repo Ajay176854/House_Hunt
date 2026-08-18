@@ -115,6 +115,9 @@ export const HomePage: React.FC<HomePageProps> = ({ initialCity, onNavigate }) =
             src={activeHeroProperty?.images?.[0] || "https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&q=80&w=2000"} 
             alt="Real Estate Banner"
             className="w-full h-full object-cover opacity-60"
+            onError={(e) => {
+              e.currentTarget.src = 'https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=2000&auto=format&fit=crop&q=80';
+            }}
           />
         </div>
 
@@ -214,14 +217,7 @@ export const HomePage: React.FC<HomePageProps> = ({ initialCity, onNavigate }) =
                 className="w-full bg-transparent text-[13px] font-medium text-slate-800 placeholder-slate-400 outline-none py-1.5"
                 suppressHydrationWarning
               />
-              <div className="flex items-center gap-1 sm:gap-2 ml-2 shrink-0 border-l border-slate-300 pl-2">
-                <button className="p-1.5 text-slate-400 hover:text-rose-600 transition-colors cursor-pointer hidden sm:block">
-                  <MapPin className="w-4 h-4" />
-                </button>
-                <button className="p-1.5 text-slate-400 hover:text-rose-600 transition-colors cursor-pointer">
-                  <svg className="w-4 h-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg>
-                </button>
-              </div>
+
             </div>
             
             <button 

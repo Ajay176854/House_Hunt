@@ -51,7 +51,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onSelectCity }) => {
                   <button
                     onClick={() => {
                       onSelectCity(city);
-                      onNavigate('/');
+                      onNavigate(`/search?city=${encodeURIComponent(city)}`);
                     }}
                     className="text-slate-400 hover:text-rose-400 transition-colors cursor-pointer"
                   >
@@ -69,12 +69,12 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onSelectCity }) => {
             </h4>
             <ul className="space-y-2 text-xs text-slate-400">
               <li>
-                <button onClick={() => onNavigate('/')} className="hover:text-white transition-colors cursor-pointer">
+                <button onClick={() => onNavigate('/search?listingType=rent')} className="hover:text-white transition-colors cursor-pointer">
                   Flats for Rent
                 </button>
               </li>
               <li>
-                <button onClick={() => onNavigate('/')} className="hover:text-white transition-colors cursor-pointer">
+                <button onClick={() => onNavigate('/search?listingType=buy')} className="hover:text-white transition-colors cursor-pointer">
                   Apartments for Sale
                 </button>
               </li>

@@ -227,6 +227,9 @@ export const PropertyDetailPage: React.FC<PropertyDetailPageProps> = ({
               referrerPolicy="no-referrer"
               className="w-full h-full object-cover cursor-pointer"
               onClick={() => setLightboxOpen(true)}
+              onError={(e) => {
+                e.currentTarget.src = 'https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=1200&auto=format&fit=crop&q=80';
+              }}
             />
 
             {/* Lightbox trigger button */}
@@ -269,7 +272,14 @@ export const PropertyDetailPage: React.FC<PropertyDetailPageProps> = ({
                     : 'border-transparent opacity-75 hover:opacity-100'
                 }`}
               >
-                <img src={img} alt={`thumb ${index}`} className="w-full h-full object-cover" />
+                <img 
+                  src={img} 
+                  alt={`thumb ${index}`} 
+                  className="w-full h-full object-cover" 
+                  onError={(e) => {
+                    e.currentTarget.src = 'https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=400&auto=format&fit=crop&q=80';
+                  }}
+                />
               </div>
             ))}
           </div>
@@ -510,6 +520,9 @@ export const PropertyDetailPage: React.FC<PropertyDetailPageProps> = ({
               src={images[activeImageIndex]}
               alt="fullscreen"
               className="max-w-full max-h-[75vh] object-contain rounded-lg"
+              onError={(e) => {
+                e.currentTarget.src = 'https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=1200&auto=format&fit=crop&q=80';
+              }}
             />
             {images.length > 1 && (
               <>
@@ -539,6 +552,9 @@ export const PropertyDetailPage: React.FC<PropertyDetailPageProps> = ({
                 className={`w-16 h-12 object-cover rounded-lg cursor-pointer border-2 ${
                   i === activeImageIndex ? 'border-rose-500' : 'border-transparent opacity-60 hover:opacity-100'
                 }`}
+                onError={(e) => {
+                  e.currentTarget.src = 'https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=100&auto=format&fit=crop&q=80';
+                }}
               />
             ))}
           </div>

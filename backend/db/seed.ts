@@ -14,7 +14,7 @@ const pool = new Pool({
 // =================== Seed Data Constants ===================
 
 const CITIES = ['Mumbai', 'Bengaluru', 'Delhi-NCR', 'Pune', 'Hyderabad', 'Chennai', 'Kolkata', 'Ahmedabad'];
-const PROPERTY_TYPES = ['Apartment', 'Villa', 'Builder Floor', 'Studio', 'Penthouse', 'Plot', 'Land'];
+const PROPERTY_TYPES = ['Apartment', 'Villa', 'Independent House', 'Builder Floor', 'Studio', 'Penthouse', 'Commercial', 'Plot', 'Land'];
 
 const LOCALITIES: Record<string, string[]> = {
   'Mumbai': ['Bandra', 'Andheri', 'Powai', 'Worli', 'Juhu', 'Malad', 'Goregaon', 'Thane'],
@@ -123,6 +123,18 @@ const IMAGES_BY_TYPE: Record<string, string[]> = {
     'https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=1200&auto=format&fit=crop&q=80',
     'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=1200&auto=format&fit=crop&q=80',
     'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1200&auto=format&fit=crop&q=80',
+  ],
+  'Independent House': [
+    'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1200&auto=format&fit=crop&q=80',
+    'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=1200&auto=format&fit=crop&q=80',
+    'https://images.unsplash.com/photo-1583608205776-bfd35f0d9f83?w=1200&auto=format&fit=crop&q=80',
+  ],
+  'Commercial': [
+    'https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&q=80&w=800',
+    'https://images.unsplash.com/photo-1572025442646-866d16c84a54?auto=format&fit=crop&q=80&w=800',
+    'https://images.unsplash.com/photo-1524758631624-e2822e304c36?auto=format&fit=crop&q=80&w=800',
+    'https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&q=80&w=800',
+    'https://images.unsplash.com/photo-1604328698692-f76ea9498e76?auto=format&fit=crop&q=80&w=800',
   ]
 };
 
@@ -211,9 +223,11 @@ async function runSeed() {
         const locality = LOCALITIES[city][localityIdx];
         const listingType = Math.random() > 0.3 ? 'rent' : 'buy';
         const propType = randomChoice(PROPERTY_TYPES);
-        const bedrooms = (propType === 'Plot' || propType === 'Land') ? 0 : (propType === 'Studio' ? 1 : randomInt(1, 5));
-        const bathrooms = (propType === 'Plot' || propType === 'Land') ? 0 : Math.max(1, bedrooms - 1 + randomInt(0, 2));
-        const balconies = (propType === 'Plot' || propType === 'Land') ? 0 : randomInt(0, 3);
+        const isPlotOrLand = propType === 'Plot' || propType === 'Land';
+        const isCommercial = propType === 'Commercial';
+        const bedrooms = (isPlotOrLand || isCommercial) ? 0 : (propType === 'Studio' ? 1 : randomInt(1, 5));
+        const bathrooms = isPlotOrLand ? 0 : (isCommercial ? randomInt(1, 4) : Math.max(1, bedrooms - 1 + randomInt(0, 2)));
+        const balconies = (isPlotOrLand || isCommercial) ? 0 : randomInt(0, 3);
         
         // Price logic
         let price = 0;
@@ -232,10 +246,10 @@ async function runSeed() {
         const pricePerSqft = listingType === 'buy' ? Math.round(price / carpetArea) : null;
         const maintenanceCharges = randomInt(2000, 8000);
         
-        const furnishing = (propType === 'Plot' || propType === 'Land') ? 'Unfurnished' : randomChoice(FURNISHING_TYPES);
+        const furnishing = isPlotOrLand ? 'Unfurnished' : randomChoice(FURNISHING_TYPES);
         const facing = randomChoice(FACING_DIRECTIONS);
-        const floorNo = (propType === 'Villa' || propType === 'Plot' || propType === 'Land') ? 0 : randomInt(1, 20);
-        const totalFloors = (propType === 'Villa' || propType === 'Plot' || propType === 'Land') ? randomInt(0, 4) : floorNo + randomInt(0, 10);
+        const floorNo = (propType === 'Villa' || isPlotOrLand) ? 0 : randomInt(1, 20);
+        const totalFloors = (propType === 'Villa' || isPlotOrLand) ? randomInt(0, 4) : floorNo + randomInt(0, 10);
         const ageOfProperty = randomChoice(AGE_OPTIONS);
         const availableFrom = randomBool(0.4) ? 'Immediate' : `${randomInt(1, 12)}/${2026}`;
         
@@ -261,8 +275,10 @@ async function runSeed() {
         const viewsCount = randomInt(5, 2000);
         const shortlistedCount = randomInt(0, Math.floor(viewsCount * 0.3));
         
-        const title = `${bedrooms} BHK ${propType} in ${locality}`;
-        const description = `A beautiful ${bedrooms} bedroom ${propType.toLowerCase()} located in the heart of ${locality}, ${city}. This ${furnishing.toLowerCase()} property spans ${carpetArea} sq.ft. of carpet area with ${bathrooms} bathroom(s) and ${balconies} balcony/balconies. Features ${facing} facing, ${gatedSecurity ? 'gated security, ' : ''}and excellent connectivity. ${isVerified ? 'Owner verified listing.' : ''} ${ageOfProperty === 'Under Construction' ? 'Under construction with expected delivery soon.' : `Property age: ${ageOfProperty}.`}`;
+        const title = isCommercial ? `Premium Commercial Space in ${locality}` : (isPlotOrLand ? `Premium ${propType} in ${locality}` : `${bedrooms} BHK ${propType} in ${locality}`);
+        const description = isCommercial 
+          ? `Excellent commercial space located in the heart of ${locality}, ${city}. Spans ${carpetArea} sq.ft. of carpet area. Ideal for office or retail. Features ${facing} facing, ${gatedSecurity ? 'gated security, ' : ''}and excellent connectivity.` 
+          : (isPlotOrLand ? `A prime ${propType.toLowerCase()} located in ${locality}, ${city}. Spans ${carpetArea} sq.ft. area. Excellent investment opportunity.` : `A beautiful ${bedrooms} bedroom ${propType.toLowerCase()} located in the heart of ${locality}, ${city}. This ${furnishing.toLowerCase()} property spans ${carpetArea} sq.ft. of carpet area with ${bathrooms} bathroom(s) and ${balconies} balcony/balconies. Features ${facing} facing, ${gatedSecurity ? 'gated security, ' : ''}and excellent connectivity. ${isVerified ? 'Owner verified listing.' : ''} ${ageOfProperty === 'Under Construction' ? 'Under construction with expected delivery soon.' : `Property age: ${ageOfProperty}.`}`);
         const address = `${societyName}, ${locality}, ${city} - ${pinCode}`;
 
         // Build placeholder for this row (40 columns)

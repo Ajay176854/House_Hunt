@@ -53,7 +53,12 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({
             {['buy', 'rent'].map((type) => (
               <button
                 key={type}
-                onClick={() => onFilterChange({ listingType: type as any, page: 1 })}
+                onClick={() => onFilterChange({ 
+                  listingType: type as any, 
+                  minPrice: undefined, 
+                  maxPrice: undefined, 
+                  page: 1 
+                })}
                 className={`flex-1 py-2 rounded-lg text-xs font-bold border transition-all ${
                   currentListingType === type
                     ? 'bg-rose-50 border-rose-200 text-rose-700'
@@ -76,11 +81,24 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({
               className="flex-1 px-2 py-2 text-xs bg-slate-50 border border-slate-200 rounded-lg outline-none"
             >
               <option value="">Min</option>
-              <option value="5000">₹5K</option>
-              <option value="10000">₹10K</option>
-              <option value="20000">₹20K</option>
-              <option value="5000000">₹50L</option>
-              <option value="10000000">₹1Cr</option>
+              {currentListingType === 'rent' ? (
+                <>
+                  <option value="5000">₹5K</option>
+                  <option value="10000">₹10K</option>
+                  <option value="20000">₹20K</option>
+                  <option value="30000">₹30K</option>
+                  <option value="50000">₹50K</option>
+                </>
+              ) : (
+                <>
+                  <option value="1000000">₹10L</option>
+                  <option value="2500000">₹25L</option>
+                  <option value="5000000">₹50L</option>
+                  <option value="10000000">₹1Cr</option>
+                  <option value="25000000">₹2.5Cr</option>
+                  <option value="50000000">₹5Cr</option>
+                </>
+              )}
             </select>
             <span className="text-slate-400 text-xs">to</span>
             <select
@@ -89,12 +107,25 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({
               className="flex-1 px-2 py-2 text-xs bg-slate-50 border border-slate-200 rounded-lg outline-none"
             >
               <option value="">Max</option>
-              <option value="20000">₹20K</option>
-              <option value="50000">₹50K</option>
-              <option value="100000">₹1L</option>
-              <option value="10000000">₹1Cr</option>
-              <option value="50000000">₹5Cr</option>
-              <option value="100000000">₹10Cr+</option>
+              {currentListingType === 'rent' ? (
+                <>
+                  <option value="10000">₹10K</option>
+                  <option value="20000">₹20K</option>
+                  <option value="30000">₹30K</option>
+                  <option value="50000">₹50K</option>
+                  <option value="100000">₹1L</option>
+                  <option value="200000">₹2L+</option>
+                </>
+              ) : (
+                <>
+                  <option value="2500000">₹25L</option>
+                  <option value="5000000">₹50L</option>
+                  <option value="10000000">₹1Cr</option>
+                  <option value="25000000">₹2.5Cr</option>
+                  <option value="50000000">₹5Cr</option>
+                  <option value="100000000">₹10Cr+</option>
+                </>
+              )}
             </select>
           </div>
         </div>

@@ -2,6 +2,14 @@
 
 HouseHunt is a modern real estate web application that allows users to seamlessly search for, list, and manage properties. Designed with a sleek, user-friendly interface, it caters to buyers, tenants, owners, and agents alike.
 
+## Current Project Status
+The application is in a robust and stable state:
+- **Authentication & Forms:** Fully functional and hardened against React Hydration errors caused by browser extensions. Login/Register email inputs automatically sanitize (force lowercase) to prevent mobile-related capitalization bugs.
+- **Navigation & Routing:** The responsive Mobile Navbar and Desktop Mega Menus are fully wired. Links successfully route to their respective portals (e.g., `/home-loans`, `/insights`, `/dealer-services`) and search URLs properly pass parameters (`listingType`, `propertyTypes`, `city`).
+- **Backend Infrastructure:** The Express API backend is fully integrated. Database seeding is cleanly consolidated into a single `seed.ts` file. 
+- **Expanded Scope:** Added multiple tier-1 Indian cities to the platform's global constant configs (Chennai, Kolkata, Ahmedabad) perfectly hooked into search parameters.
+- **Testing:** The system underwent extensive local E2E Selenium verification across all major user flows (Auth, Search, Property Details). Test footprints were cleanly removed post-verification.
+
 ## Tech Stack
 
 ### Frontend
@@ -12,7 +20,7 @@ HouseHunt is a modern real estate web application that allows users to seamlessl
 
 ### Backend
 - **Server:** Node.js with [Express.js](https://expressjs.com/)
-- **Database:** PostgreSQL (using `pg` driver)
+- **Database:** PostgreSQL (using `pg` driver & `knex`)
 - **Authentication:** JWT (JSON Web Tokens) & bcryptjs
 - **Validation:** Zod
 
@@ -43,10 +51,10 @@ Ensure you have PostgreSQL running. Create a database named `househunt` (or your
 3. Configure your environment:
    - Copy the `.env.example` file in the root to `backend/.env`.
    - Update the `DATABASE_URL` with your PostgreSQL connection string.
-4. Run migrations and seed the database (optional but recommended for testing):
+4. Run migrations and seed the database:
    ```bash
    npm run db:migrate
-   npm run db:seed
+   npx ts-node db/seed.ts
    ```
 5. Start the backend development server:
    ```bash

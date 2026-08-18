@@ -56,6 +56,7 @@ export interface Property {
   isZeroBrokerage: boolean;
   gatedSecurity: boolean;
   petFriendly: boolean;
+  readyToMove?: boolean;
   preferredTenants?: string[];
   viewsCount: number;
   shortlistedCount: number;
@@ -103,6 +104,7 @@ export interface FilterParams {
   city?: string;
   locality?: string;
   listingType?: ListingType | 'all';
+  ownerType?: OwnerType | 'all';
   propertyTypes?: PropertyType[];
   minPrice?: number;
   maxPrice?: number;

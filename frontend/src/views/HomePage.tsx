@@ -44,6 +44,48 @@ export const HomePage: React.FC<HomePageProps> = ({ initialCity, onNavigate }) =
   // Inquiry modal state
   const [selectedPropertyForInquiry, setSelectedPropertyForInquiry] = useState<Property | null>(null);
 
+  const [searchError, setSearchError] = useState(false);
+
+  // Autocomplete and Token State
+  type Suggestion = { text: string; type: 'City' | 'Locality' | 'Project' };
+  const [searchInput, setSearchInput] = useState('');
+  const [searchTokens, setSearchTokens] = useState<string[]>([]);
+  const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+
+  useEffect(() => {
+    if (searchInput.length < 2) {
+      setSuggestions([]);
+      return;
+    }
+    const fetchSuggestions = async () => {
+      try {
+        const res = await getProperties({ search: searchInput, limit: 10 });
+        const newSuggestions: Suggestion[] = [];
+        const seen = new Set<string>();
+        
+        const addSugg = (text: string, type: 'City'|'Locality'|'Project') => {
+          if (text && text.toLowerCase().includes(searchInput.toLowerCase()) && !seen.has(text.toLowerCase())) {
+            seen.add(text.toLowerCase());
+            newSuggestions.push({ text, type });
+          }
+        };
+
+        res.data.forEach((p: Property) => {
+          addSugg(p.city, 'City');
+          addSugg(p.locality, 'Locality');
+          if (p.societyName) addSugg(p.societyName, 'Project');
+        });
+
+        setSuggestions(newSuggestions.slice(0, 5));
+      } catch (err) {
+        // ignore
+      }
+    };
+    const timeoutId = setTimeout(fetchSuggestions, 300);
+    return () => clearTimeout(timeoutId);
+  }, [searchInput]);
+
   useEffect(() => {
     setFilters((prev: FilterParams) => ({
       ...prev,
@@ -74,8 +116,21 @@ export const HomePage: React.FC<HomePageProps> = ({ initialCity, onNavigate }) =
     setFilters((prev: FilterParams) => ({ ...prev, ...newFilters }));
   };
 
-  const executeSearch = (overrideFilters?: Partial<FilterParams>) => {
-    const finalFilters = { ...filters, ...overrideFilters };
+  const executeSearch = (overrideFilters?: Partial<FilterParams>, isFromSearchBar: boolean = false) => {
+    const finalTokens = [...searchTokens];
+    if (searchInput.trim()) finalTokens.push(searchInput.trim());
+    const searchString = finalTokens.join(',');
+
+    const finalFilters = { ...filters, search: searchString, ...overrideFilters };
+    
+    // Prevent empty searches only from the main search bar
+    if (isFromSearchBar && !finalFilters.city && (!finalFilters.search || finalFilters.search.trim() === '')) {
+      setSearchError(true);
+      return;
+    }
+    
+    setSearchError(false);
+
     const query = new URLSearchParams();
     if (finalFilters.city) query.set('city', finalFilters.city);
     if (finalFilters.listingType && finalFilters.listingType !== 'all') query.set('listingType', finalFilters.listingType);
@@ -145,7 +200,7 @@ export const HomePage: React.FC<HomePageProps> = ({ initialCity, onNavigate }) =
         </div>
 
         {/* Search Container Box - overlapping the bottom */}
-        <div className="absolute -bottom-16 md:-bottom-12 left-4 right-4 md:left-auto md:right-auto md:w-[90%] max-w-4xl bg-white rounded-xl shadow-xl z-20 overflow-hidden flex flex-col border border-slate-200">
+        <div className="absolute -bottom-16 md:-bottom-12 left-4 right-4 md:left-auto md:right-auto md:w-[90%] max-w-4xl bg-white rounded-xl shadow-xl z-20 flex flex-col border border-slate-200">
           {/* Tabs */}
           <div className="flex overflow-x-auto hide-scrollbar border-b border-slate-200">
             {['Buy', 'Rent', 'New Launch', 'Commercial', 'Plots/Land', 'Projects'].map((tab, idx) => {
@@ -207,22 +262,97 @@ export const HomePage: React.FC<HomePageProps> = ({ initialCity, onNavigate }) =
               <svg className="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
             </div>
             
-            <div className="flex-1 relative flex items-center bg-slate-100 rounded-lg px-3 py-1.5 border border-slate-200 focus-within:border-rose-400 focus-within:ring-1 focus-within:ring-rose-400 transition-all">
-              <Search className="w-4 h-4 text-slate-400 mr-2 shrink-0" />
+            <div className={`flex-1 relative flex flex-wrap items-center bg-slate-100 rounded-lg px-2 py-1 border transition-all min-h-[44px] ${searchError ? 'border-red-500 ring-1 ring-red-500' : 'border-slate-200 focus-within:border-rose-400 focus-within:ring-1 focus-within:ring-rose-400'}`}>
+              <Search className={`w-4 h-4 ml-1 mr-2 shrink-0 ${searchError ? 'text-red-500' : 'text-slate-400'}`} />
+              
+              {/* Active City Pill (From global selection) */}
+              {filters.city && (
+                <div className="bg-rose-50 border border-rose-200 text-slate-800 text-[13px] px-2 py-0.5 rounded-full flex items-center gap-1.5 mr-1 my-0.5 shrink-0">
+                  {filters.city}
+                  <button 
+                    onClick={() => handleFilterChange({ city: undefined })}
+                    className="text-rose-500 hover:text-rose-700 flex items-center justify-center cursor-pointer"
+                  >
+                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                  </button>
+                </div>
+              )}
+
+              {/* User Added Tokens */}
+              {searchTokens.map((token, index) => (
+                <div key={index} className="bg-rose-50 border border-rose-200 text-slate-800 text-[13px] px-2 py-0.5 rounded-full flex items-center gap-1.5 mr-1 my-0.5 shrink-0">
+                  {token}
+                  <button 
+                    onClick={() => setSearchTokens(searchTokens.filter((_, i) => i !== index))}
+                    className="text-rose-500 hover:text-rose-700 flex items-center justify-center cursor-pointer"
+                  >
+                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                  </button>
+                </div>
+              ))}
+
               <input 
                 type="text" 
-                value={filters.search || ''}
-                onChange={(e) => handleFilterChange({ search: e.target.value })}
-                placeholder="Search 3 BHK for sale in Mumbai" 
-                className="w-full bg-transparent text-[13px] font-medium text-slate-800 placeholder-slate-400 outline-none py-1.5"
+                value={searchInput}
+                onChange={(e) => {
+                  setSearchInput(e.target.value);
+                  setShowSuggestions(true);
+                  if (searchError) setSearchError(false);
+                }}
+                onFocus={() => setShowSuggestions(true)}
+                onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    if (showSuggestions && suggestions.length > 0) {
+                      setSearchTokens([...searchTokens, suggestions[0].text]);
+                      setSearchInput('');
+                      setShowSuggestions(false);
+                    } else {
+                      executeSearch(undefined, true);
+                    }
+                  } else if (e.key === ',' || e.key === 'Tab') {
+                    e.preventDefault();
+                    if (searchInput.trim()) {
+                      setSearchTokens([...searchTokens, searchInput.trim()]);
+                      setSearchInput('');
+                      setShowSuggestions(false);
+                    }
+                  } else if (e.key === 'Backspace' && searchInput === '' && searchTokens.length > 0) {
+                    e.preventDefault();
+                    setSearchTokens(searchTokens.slice(0, -1));
+                  }
+                }}
+                placeholder={searchError ? "Please type any city..." : (searchTokens.length > 0 || filters.city) ? "Add more..." : "Search locality, city, builder..."}
+                className={`flex-1 min-w-[150px] bg-transparent text-[13px] font-medium outline-none py-1.5 ${searchError ? 'text-red-600 placeholder-red-400' : 'text-slate-800 placeholder-slate-400'}`}
                 suppressHydrationWarning
               />
 
+              {/* Autocomplete Dropdown */}
+              {showSuggestions && suggestions.length > 0 && (
+                <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-slate-200 rounded-lg shadow-xl z-50 overflow-hidden">
+                  {suggestions.map((sugg, idx) => (
+                    <div 
+                      key={idx}
+                      onClick={() => {
+                        setSearchTokens([...searchTokens, sugg.text]);
+                        setSearchInput('');
+                        setShowSuggestions(false);
+                        setSearchError(false);
+                      }}
+                      className="px-4 py-2 hover:bg-slate-50 cursor-pointer flex justify-between items-center border-b border-slate-100 last:border-0"
+                    >
+                      <span className="text-[13px] font-semibold text-slate-800">{sugg.text}</span>
+                      <span className="text-[10px] text-slate-400 uppercase tracking-wider font-bold">{sugg.type}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
             
             <button 
-              onClick={() => executeSearch()}
-              className="w-full sm:w-auto px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-[13px] rounded-lg shadow-sm transition-colors shrink-0 cursor-pointer"
+              onClick={() => executeSearch(undefined, true)}
+              className="w-full sm:w-auto px-6 py-2.5 bg-rose-600 hover:bg-rose-700 text-white font-bold text-[13px] rounded-lg shadow-sm transition-colors shrink-0 cursor-pointer"
             >
               Search
             </button>
@@ -276,6 +406,44 @@ export const HomePage: React.FC<HomePageProps> = ({ initialCity, onNavigate }) =
           >
             <svg className="w-5 h-5 ml-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"></path></svg>
           </button>
+        </div>
+      </section>
+
+      {/* Featured Projects Section */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8 mb-4 overflow-hidden">
+        <div className="flex justify-between items-end mb-6">
+          <div>
+            <span className="text-[10px] font-bold text-rose-600 uppercase tracking-widest block mb-1">HANDPICKED PROJECTS</span>
+            <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+              Featured Projects {filters.city ? `in ${filters.city}` : ''}
+            </h2>
+          </div>
+          <button onClick={() => onNavigate('/search?propertyTypes=Apartment')} className="hidden sm:block text-blue-600 font-bold text-sm hover:underline cursor-pointer">See all projects</button>
+        </div>
+        
+        <div className="flex gap-6 overflow-x-auto hide-scrollbar pb-4 -mx-4 px-4 sm:mx-0 sm:px-0">
+          {[
+            { id: '56afdab5-28f2-45c0-8d81-44fb86d1262f', title: '3 BHK in Indiranagar', builder: 'Suresh Patel', loc: 'Indiranagar, Bengaluru', price: '₹ 5.0 Cr', img: 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=1200&auto=format&fit=crop&q=80' },
+            { id: '7dc9d55c-df8b-490a-97a8-052c49b00579', title: '4 BHK in Kalyani Nagar', builder: 'Rahul Verma', loc: 'Kalyani Nagar, Pune', price: '₹ 5.0 Cr', img: 'https://images.unsplash.com/photo-1560185007-cde436f6a4d0?w=1200&auto=format&fit=crop&q=80' },
+            { id: '10799e5b-bb4e-45cf-bdbd-68a225c5c426', title: '2 BHK in Thane', builder: 'Rahul Verma', loc: 'Thane, Mumbai', price: '₹ 5.0 Cr', img: 'https://images.unsplash.com/photo-1600566753376-12c8ab7fb75b?w=1200&auto=format&fit=crop&q=80' },
+            { id: '527bb5bc-2988-4dfc-b294-d5b0949a9935', title: '3 BHK in Salt Lake', builder: 'Rahul Verma', loc: 'Salt Lake, Kolkata', price: '₹ 5.0 Cr', img: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1200&auto=format&fit=crop&q=80' },
+          ].map((proj, idx) => (
+            <div key={idx} onClick={() => onNavigate(`/listings/${proj.id}`)} className="flex-shrink-0 w-72 md:w-80 group cursor-pointer border border-slate-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow bg-white">
+              <div className="relative h-48 overflow-hidden">
+                <img src={proj.img} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                <div className="absolute top-2 left-2 bg-slate-900/80 text-white text-[10px] px-2 py-1 rounded font-bold tracking-wider">NEW LAUNCH</div>
+              </div>
+              <div className="p-4">
+                <h3 className="text-lg font-black text-slate-800 truncate">{proj.title}</h3>
+                <p className="text-xs font-semibold text-slate-500 mb-2">by {proj.builder}</p>
+                <p className="text-sm text-slate-600 mb-4 truncate">{proj.loc}</p>
+                <div className="flex justify-between items-center border-t border-slate-100 pt-3">
+                  <span className="text-base font-black text-slate-900">{proj.price}</span>
+                  <button onClick={(e) => { e.stopPropagation(); onNavigate(`/listings/${proj.id}`); }} className="text-rose-600 font-bold text-xs hover:bg-rose-50 px-3 py-1.5 rounded transition-colors cursor-pointer">Details</button>
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
       </section>
 
@@ -360,6 +528,42 @@ export const HomePage: React.FC<HomePageProps> = ({ initialCity, onNavigate }) =
           </div>
         </div>
 
+        {/* Top Localities Section */}
+        <section className="mb-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10">
+          <div className="flex justify-between items-end mb-6">
+            <div>
+              <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-1">TRENDING NOW</span>
+              <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+                Top Localities in Focus
+              </h2>
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {[
+              { loc: 'Whitefield', city: 'Bengaluru', price: '₹ 8,500/sq.ft', trend: '+5.2%', props: 589 },
+              { loc: 'Juhu', city: 'Mumbai', price: '₹ 22,000/sq.ft', trend: '+3.1%', props: 596 },
+              { loc: 'Kalyani Nagar', city: 'Pune', price: '₹ 9,200/sq.ft', trend: '+8.4%', props: 604 },
+              { loc: 'Guindy', city: 'Chennai', price: '₹ 11,100/sq.ft', trend: '+6.5%', props: 589 },
+            ].map((loc, idx) => (
+              <div key={idx} onClick={() => executeSearch({ city: loc.city, search: loc.loc })} className="bg-white border border-slate-200 rounded-xl p-4 hover:shadow-md transition-shadow cursor-pointer group">
+                <div className="flex justify-between items-start mb-2">
+                  <h3 className="text-base font-bold text-slate-800 group-hover:text-rose-600 transition-colors truncate pr-2">{loc.loc}</h3>
+                  <span className="bg-green-100 text-green-700 text-[10px] font-bold px-1.5 py-0.5 rounded flex items-center gap-0.5 shrink-0">
+                    <svg className="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 10l7-7m0 0l7 7m-7-7v18" /></svg>
+                    {loc.trend}
+                  </span>
+                </div>
+                <p className="text-xs text-slate-500 mb-4">{loc.city}</p>
+                <div className="flex justify-between items-center text-sm border-t border-slate-100 pt-3">
+                  <span className="font-bold text-slate-700">{loc.price}</span>
+                  <span className="text-xs font-semibold text-blue-600 bg-blue-50 px-2 py-1 rounded">{loc.props} properties</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
         {/* Stats Banner — driven by DB stats */}
         {stats && stats.totalProperties > 0 && (
           <div className="mb-20 grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-4xl mx-auto">
@@ -419,6 +623,30 @@ export const HomePage: React.FC<HomePageProps> = ({ initialCity, onNavigate }) =
                 </button>
               </div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Post Property CTA Banner */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-16 pt-4">
+        <div className="bg-slate-900 rounded-2xl overflow-hidden relative flex flex-col md:flex-row items-center p-8 sm:p-12 shadow-2xl border border-slate-800">
+          <div className="absolute top-0 right-0 w-full md:w-1/2 h-full opacity-20 bg-[url('https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&q=80&w=800')] bg-cover bg-center mix-blend-overlay"></div>
+          <div className="absolute inset-0 bg-gradient-to-r from-slate-900 via-slate-900/80 to-transparent"></div>
+          
+          <div className="relative z-10 flex-1 text-center md:text-left mb-8 md:mb-0">
+            <span className="text-[10px] font-bold text-yellow-400 uppercase tracking-widest block mb-2">FOR OWNERS & DEALERS</span>
+            <h2 className="text-3xl md:text-4xl font-black text-white tracking-tight mb-4">
+              Post your Property for <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-yellow-200">Free</span>
+            </h2>
+            <p className="text-slate-300 font-medium max-w-lg mx-auto md:mx-0 text-sm md:text-base leading-relaxed">
+              List it on HouseHunt and get genuine leads. Sell or rent your property faster to millions of verified buyers and tenants across India.
+            </p>
+          </div>
+          
+          <div className="relative z-10 md:pl-8 flex-shrink-0">
+            <button onClick={() => onNavigate('/listings/new')} className="bg-yellow-400 hover:bg-yellow-300 text-slate-900 font-black text-[15px] px-8 py-4 rounded-xl shadow-lg transition-transform hover:scale-105 active:scale-95 cursor-pointer">
+              Post Property Now
+            </button>
           </div>
         </div>
       </section>

@@ -89,7 +89,19 @@ export async function searchListings(query: ListingsQuery): Promise<PaginatedRes
   let paramIndex = 1;
 
   if (query.search && query.search.trim() !== "") {
-    const terms = query.search.split(',').map(t => t.trim()).filter(t => t.length > 0);
+    let terms = query.search.split(',').map(t => t.trim()).filter(t => t.length > 0);
+    
+    // Map common aliases in search terms as well
+    terms = terms.map(term => {
+      const lower = term.toLowerCase();
+      if (lower === 'bangalore') return 'Bengaluru';
+      if (lower === 'bombay') return 'Mumbai';
+      if (lower === 'delhi') return 'Delhi-NCR';
+      if (lower === 'madras') return 'Chennai';
+      if (lower === 'gurgaon') return 'Gurugram';
+      return term;
+    });
+
     if (terms.length > 0) {
       const termClauses = terms.map(term => {
         const pIndex = paramIndex++;

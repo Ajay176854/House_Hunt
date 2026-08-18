@@ -45,14 +45,18 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
     router.push(`${targetPath}?${params.toString()}`);
   };
 
+  const isHomePage = pathname === '/';
+
   return (
     <div className="min-h-screen flex flex-col">
-      <Navbar
-        currentPath={pathname || ''}
-        onNavigate={navigate}
-        selectedCity={selectedCity}
-        onCityChange={handleCityChange}
-      />
+      {isHomePage && (
+        <Navbar
+          currentPath={pathname || ''}
+          onNavigate={navigate}
+          selectedCity={selectedCity}
+          onCityChange={handleCityChange}
+        />
+      )}
 
       <div className="flex-1">{children}</div>
 

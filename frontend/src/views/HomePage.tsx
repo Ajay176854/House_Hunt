@@ -305,9 +305,12 @@ export const HomePage: React.FC<HomePageProps> = ({ initialCity, onNavigate }) =
                   if (e.key === 'Enter') {
                     e.preventDefault();
                     if (showSuggestions && suggestions.length > 0) {
-                      setSearchTokens([...searchTokens, suggestions[0].text]);
+                      const newTokens = [...searchTokens, suggestions[0].text];
+                      setSearchTokens(newTokens);
                       setSearchInput('');
                       setShowSuggestions(false);
+                      setSearchError(false);
+                      executeSearch({ search: newTokens.join(',') }, true);
                     } else {
                       executeSearch(undefined, true);
                     }
@@ -334,11 +337,14 @@ export const HomePage: React.FC<HomePageProps> = ({ initialCity, onNavigate }) =
                   {suggestions.map((sugg, idx) => (
                     <div 
                       key={idx}
-                      onClick={() => {
-                        setSearchTokens([...searchTokens, sugg.text]);
+                      onMouseDown={(e) => {
+                        e.preventDefault();
+                        const newTokens = [...searchTokens, sugg.text];
+                        setSearchTokens(newTokens);
                         setSearchInput('');
                         setShowSuggestions(false);
                         setSearchError(false);
+                        executeSearch({ search: newTokens.join(',') }, true);
                       }}
                       className="px-4 py-2 hover:bg-slate-50 cursor-pointer flex justify-between items-center border-b border-slate-100 last:border-0"
                     >

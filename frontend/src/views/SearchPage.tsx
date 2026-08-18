@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, KeyboardEvent } from 'react';
+import React, { useState, useEffect, KeyboardEvent, useCallback } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Property, FilterParams } from '@/types';
 import { getProperties } from '@/services/api';
@@ -88,12 +88,12 @@ export const SearchPage: React.FC = () => {
   }, [searchInput]);
 
   // Listen to searchParams changes (e.g. when navbar city changes)
+  const cityFromUrl = searchParams?.get('city') || undefined;
   useEffect(() => {
-    const cityFromUrl = searchParams?.get('city') || undefined;
     if (cityFromUrl !== filters.city) {
       setFilters(prev => ({ ...prev, city: cityFromUrl }));
     }
-  }, [searchParams?.get('city')]);
+  }, [cityFromUrl, filters.city]);
 
   // Sync state to URL without full reload
   useEffect(() => {
@@ -115,7 +115,7 @@ export const SearchPage: React.FC = () => {
     window.history.replaceState({ ...window.history.state, as: newUrl, url: newUrl }, '', newUrl);
   }, [filters]);
 
-  const fetchListingData = async (loadMore = false) => {
+  const fetchListingData = useCallback(async (loadMore = false) => {
     if (loadMore) {
       setIsLoadingMore(true);
     } else {
@@ -146,13 +146,13 @@ export const SearchPage: React.FC = () => {
       setIsLoading(false);
       setIsLoadingMore(false);
     }
-  };
+  }, [filters, nextCursor]);
 
   useEffect(() => {
     fetchListingData(false);
     // Scroll to top when page changes (only on fresh fetch)
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, [filters]);
+  }, [filters, fetchListingData]);
 
   const handleFilterChange = (newFilters: Partial<FilterParams>) => {
     setFilters((prev) => {

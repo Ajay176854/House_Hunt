@@ -5,6 +5,7 @@ import { Property } from '@/types';
 import { formatIndianPrice, formatArea, timeAgo } from '@/utils/formatters';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import {
   Heart,
   ChevronLeft,
@@ -88,11 +89,12 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
         {/* Left Side: Images */}
         <div className="w-full md:w-[320px] shrink-0 p-3 flex flex-col gap-1.5">
           <div className="relative aspect-[4/3] rounded-lg overflow-hidden bg-slate-100">
-            <img
+            <Image
               src={images[currentImgIndex]}
               alt={property.title}
-              className="w-full h-full object-cover"
-              onError={(e) => {
+              fill
+              className="object-cover"
+              onError={(e: any) => {
                 e.currentTarget.src = 'https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=800&auto=format&fit=crop&q=80';
               }}
             />
@@ -119,7 +121,7 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
           <div className="grid grid-cols-3 gap-1.5 h-[60px]">
             {images.slice(0, 3).map((img, idx) => (
               <div key={idx} className="relative rounded overflow-hidden bg-slate-100 cursor-pointer" onClick={(e) => { e.stopPropagation(); setCurrentImgIndex(idx); }}>
-                <img src={img} className="w-full h-full object-cover opacity-90 hover:opacity-100" />
+                <Image src={img} alt="Thumbnail" fill className="object-cover opacity-90 hover:opacity-100" />
                 {idx === 2 && images.length > 3 && (
                   <div className="absolute inset-0 bg-black/60 flex items-center justify-center text-white text-xs font-bold">
                     +{images.length - 3} more
@@ -243,12 +245,12 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
     >
       {/* Media Box */}
       <div className="relative aspect-16/10 w-full overflow-hidden bg-slate-100">
-        <img
+        <Image
           src={images[currentImgIndex]}
           alt={property.title}
-          referrerPolicy="no-referrer"
-          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-          onError={(e) => {
+          fill
+          className="object-cover transition-transform duration-500 group-hover:scale-105"
+          onError={(e: any) => {
             e.currentTarget.src = 'https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=800&auto=format&fit=crop&q=80';
           }}
         />

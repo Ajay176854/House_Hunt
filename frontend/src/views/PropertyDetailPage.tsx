@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Property } from '@/types';
 import { getPropertyById } from '@/services/api';
 import { formatIndianPrice, formatIndianNumber, timeAgo } from '@/utils/formatters';
@@ -13,6 +13,7 @@ import { EmiCalculator } from '@/components/property/EmiCalculator';
 import { NeighborhoodInsights } from '@/components/property/NeighborhoodInsights';
 import { PropertyCard } from '@/components/property/PropertyCard';
 import { SEOHead } from '@/components/common/SEOHead';
+import Image from 'next/image';
 import {
   MapPin,
   Heart,
@@ -67,7 +68,7 @@ export const PropertyDetailPage: React.FC<PropertyDetailPageProps> = ({
   const [copiedLink, setCopiedLink] = useState(false);
   const [showPhone, setShowPhone] = useState(false);
 
-  const fetchDetail = async () => {
+  const fetchDetail = useCallback(async () => {
     setIsLoading(true);
     setErrorStatus(null);
     setErrorMessage(null);
@@ -82,12 +83,12 @@ export const PropertyDetailPage: React.FC<PropertyDetailPageProps> = ({
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [propertyId]);
 
   useEffect(() => {
     fetchDetail();
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, [propertyId]);
+  }, [propertyId, fetchDetail]);
 
   const handleShare = () => {
     navigator.clipboard.writeText(window.location.href);
@@ -223,13 +224,13 @@ export const PropertyDetailPage: React.FC<PropertyDetailPageProps> = ({
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
           {/* Main Large Image */}
           <div className="lg:col-span-3 relative rounded-2xl overflow-hidden bg-slate-900 aspect-16/10 shadow-sm group">
-            <img
+            <Image
               src={images[activeImageIndex]}
               alt={property.title}
-              referrerPolicy="no-referrer"
-              className="w-full h-full object-cover cursor-pointer"
+              fill
+              className="object-cover cursor-pointer"
               onClick={() => setLightboxOpen(true)}
-              onError={(e) => {
+              onError={(e: any) => {
                 e.currentTarget.src = 'https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=1200&auto=format&fit=crop&q=80';
               }}
             />
@@ -274,11 +275,12 @@ export const PropertyDetailPage: React.FC<PropertyDetailPageProps> = ({
                     : 'border-transparent opacity-75 hover:opacity-100'
                 }`}
               >
-                <img 
+                <Image 
                   src={img} 
                   alt={`thumb ${index}`} 
-                  className="w-full h-full object-cover" 
-                  onError={(e) => {
+                  fill
+                  className="object-cover" 
+                  onError={(e: any) => {
                     e.currentTarget.src = 'https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=400&auto=format&fit=crop&q=80';
                   }}
                 />
@@ -532,6 +534,7 @@ export const PropertyDetailPage: React.FC<PropertyDetailPageProps> = ({
           </div>
 
           <div className="relative max-w-5xl max-h-[75vh] flex items-center justify-center">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={images[activeImageIndex]}
               alt="fullscreen"
@@ -560,15 +563,17 @@ export const PropertyDetailPage: React.FC<PropertyDetailPageProps> = ({
 
           <div className="flex gap-2 overflow-x-auto max-w-4xl py-2">
             {images.map((img, i) => (
-              <img
+              <Image
                 key={i}
                 src={img}
                 alt="thumb"
+                width={64}
+                height={48}
                 onClick={() => setActiveImageIndex(i)}
                 className={`w-16 h-12 object-cover rounded-lg cursor-pointer border-2 ${
                   i === activeImageIndex ? 'border-rose-500' : 'border-transparent opacity-60 hover:opacity-100'
                 }`}
-                onError={(e) => {
+                onError={(e: any) => {
                   e.currentTarget.src = 'https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=100&auto=format&fit=crop&q=80';
                 }}
               />

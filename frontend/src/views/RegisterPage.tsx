@@ -5,12 +5,15 @@ import { useAuth } from '@/context/AuthContext';
 import { SEOHead } from '@/components/common/SEOHead';
 import { Building2, Mail, User, Phone, Lock, UserPlus, ArrowRight, Eye, EyeOff } from 'lucide-react';
 
+import { useRouter } from 'next/navigation';
+
 interface RegisterPageProps {
   onNavigate: (path: string) => void;
 }
 
 export const RegisterPage: React.FC<RegisterPageProps> = ({ onNavigate }) => {
-  const { register } = useAuth();
+  const router = useRouter();
+  const { register, user, isLoading } = useAuth();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -19,6 +22,24 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ onNavigate }) => {
   const [role, setRole] = useState<'user' | 'agent' | 'builder'>('user');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  React.useEffect(() => {
+    if (user && !isLoading) {
+      router.replace('/dashboard');
+    }
+  }, [user, isLoading, router]);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="w-8 h-8 border-4 border-rose-200 border-t-rose-600 rounded-full animate-spin"></div>
+      </div>
+    );
+  }
+
+  if (user) {
+    return null;
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

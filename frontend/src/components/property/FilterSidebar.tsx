@@ -83,10 +83,22 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({
                   className="w-full pl-3 pr-8 py-2 text-xs font-semibold text-slate-700 bg-white border border-slate-300 rounded-full outline-none appearance-none cursor-pointer"
                 >
                   <option value="">No min</option>
-                  <option value="1000000">₹10 L</option>
-                  <option value="2500000">₹25 L</option>
-                  <option value="5000000">₹50 L</option>
-                  <option value="10000000">₹1 Cr</option>
+                  {currentListingType === 'rent' ? (
+                    <>
+                      <option value="5000">₹5 K</option>
+                      <option value="10000">₹10 K</option>
+                      <option value="25000">₹25 K</option>
+                      <option value="50000">₹50 K</option>
+                      <option value="100000">₹1 L</option>
+                    </>
+                  ) : (
+                    <>
+                      <option value="1000000">₹10 L</option>
+                      <option value="2500000">₹25 L</option>
+                      <option value="5000000">₹50 L</option>
+                      <option value="10000000">₹1 Cr</option>
+                    </>
+                  )}
                 </select>
                 <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-500 pointer-events-none" />
               </div>
@@ -97,11 +109,23 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({
                   className="w-full pl-3 pr-8 py-2 text-xs font-semibold text-slate-700 bg-white border border-slate-300 rounded-full outline-none appearance-none cursor-pointer"
                 >
                   <option value="">No max</option>
-                  <option value="5000000">₹50 L</option>
-                  <option value="10000000">₹1 Cr</option>
-                  <option value="25000000">₹2.5 Cr</option>
-                  <option value="50000000">₹5 Cr</option>
-                  <option value="100000000">₹10 Cr+</option>
+                  {currentListingType === 'rent' ? (
+                    <>
+                      <option value="10000">₹10 K</option>
+                      <option value="25000">₹25 K</option>
+                      <option value="50000">₹50 K</option>
+                      <option value="100000">₹1 L</option>
+                      <option value="200000">₹2 L+</option>
+                    </>
+                  ) : (
+                    <>
+                      <option value="5000000">₹50 L</option>
+                      <option value="10000000">₹1 Cr</option>
+                      <option value="25000000">₹2.5 Cr</option>
+                      <option value="50000000">₹5 Cr</option>
+                      <option value="100000000">₹10 Cr+</option>
+                    </>
+                  )}
                 </select>
                 <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-500 pointer-events-none" />
               </div>

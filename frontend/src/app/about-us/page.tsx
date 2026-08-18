@@ -61,7 +61,7 @@ export default function AboutUsPage() {
             </div>
             <h3 className="text-xl font-bold text-slate-900 mb-4">Community First</h3>
             <p className="text-slate-600 leading-relaxed">
-              We're not just selling houses; we're building communities. Our focus is on sustainable growth and creating lasting relationships.
+              We&apos;re not just selling houses; we&apos;re building communities. Our focus is on sustainable growth and creating lasting relationships.
             </p>
           </div>
         </div>

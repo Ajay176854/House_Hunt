@@ -45,11 +45,12 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
     router.push(`${targetPath}?${params.toString()}`);
   };
 
-  const isHomePage = pathname === '/';
+  const hideNavbarPaths = ['/login', '/register', '/search'];
+  const showNavbar = !hideNavbarPaths.includes(pathname || '');
 
   return (
     <div className="min-h-screen flex flex-col">
-      {isHomePage && (
+      {showNavbar && (
         <Navbar
           currentPath={pathname || ''}
           onNavigate={navigate}

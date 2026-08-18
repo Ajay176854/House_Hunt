@@ -45,7 +45,7 @@ export const HomePage: React.FC<HomePageProps> = ({ initialCity, onNavigate }) =
   const [selectedPropertyForInquiry, setSelectedPropertyForInquiry] = useState<Property | null>(null);
 
   useEffect(() => {
-    setFilters(prev => ({
+    setFilters((prev: FilterParams) => ({
       ...prev,
       city: initialCity && initialCity !== 'All Cities' ? initialCity : undefined
     }));
@@ -71,7 +71,7 @@ export const HomePage: React.FC<HomePageProps> = ({ initialCity, onNavigate }) =
   }, [filters.city]);
 
   const handleFilterChange = (newFilters: Partial<FilterParams>) => {
-    setFilters((prev) => ({ ...prev, ...newFilters }));
+    setFilters((prev: FilterParams) => ({ ...prev, ...newFilters }));
   };
 
   const executeSearch = (overrideFilters?: Partial<FilterParams>) => {
@@ -81,7 +81,7 @@ export const HomePage: React.FC<HomePageProps> = ({ initialCity, onNavigate }) =
     if (finalFilters.listingType && finalFilters.listingType !== 'all') query.set('listingType', finalFilters.listingType);
     if (finalFilters.search) query.set('search', finalFilters.search);
     if (finalFilters.propertyTypes && finalFilters.propertyTypes.length > 0) {
-      finalFilters.propertyTypes.forEach(pt => query.append('propertyTypes', pt));
+      finalFilters.propertyTypes.forEach((pt: string) => query.append('propertyTypes', pt));
     }
     onNavigate(`/search?${query.toString()}`);
   };
@@ -332,8 +332,9 @@ export const HomePage: React.FC<HomePageProps> = ({ initialCity, onNavigate }) =
               };
 
               // Use cityCounts from metadata if available, with fallback
-              const cityEntries = Object.keys(cityCounts).length > 0
-                ? Object.entries(cityCounts).sort((a, b) => b[1] - a[1]).slice(0, 8)
+              const cityCountsObj = (cityCounts || {}) as Record<string, number>;
+              const cityEntries = Object.keys(cityCountsObj).length > 0
+                ? Object.entries(cityCountsObj).sort((a, b) => b[1] - a[1]).slice(0, 8)
                 : Object.keys(CITY_IMAGES).map(c => [c, 0] as [string, number]);
 
               return cityEntries.map(([cityName, count]) => (
@@ -442,8 +443,8 @@ export const HomePage: React.FC<HomePageProps> = ({ initialCity, onNavigate }) =
               <PropertyCard
                 key={property.id}
                 property={property}
-                onSelect={(id) => onNavigate(`/listings/${id}`)}
-                onContactClick={(prop) => setSelectedPropertyForInquiry(prop)}
+                onSelect={(id: string) => onNavigate(`/listings/${id}`)}
+                onContactClick={(prop: Property) => setSelectedPropertyForInquiry(prop)}
               />
             ))}
           </div>

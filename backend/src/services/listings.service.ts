@@ -29,6 +29,7 @@ interface ListingsQuery {
   sort?: string;
   cursor?: string;
   limit?: string;
+  ids?: string | string[];
 }
 
 // Convert DB snake_case row to camelCase Property object
@@ -201,6 +202,15 @@ export async function searchListings(query: ListingsQuery): Promise<PaginatedRes
   }
   if (query.isZeroBrokerage === "true") {
     whereClauses.push(`is_zero_brokerage = true`);
+  }
+
+  if (query.ids) {
+    const idList = typeof query.ids === 'string' ? query.ids.split(',') : query.ids;
+    if (Array.isArray(idList) && idList.length > 0) {
+      whereClauses.push(`id = ANY($${paramIndex})`);
+      params.push(idList);
+      paramIndex++;
+    }
   }
 
   let orderBy = "created_at DESC, id ASC";

@@ -22,11 +22,15 @@ export const SavedPage: React.FC<SavedPageProps> = ({ onNavigate }) => {
 
   useEffect(() => {
     async function loadSaved() {
+      if (savedPropertyIds.length === 0) {
+        setSavedProperties([]);
+        setIsLoading(false);
+        return;
+      }
       setIsLoading(true);
       try {
-        const res = await getProperties({ limit: 50 });
-        const filtered = res.data.filter((p) => savedPropertyIds.includes(p.id));
-        setSavedProperties(filtered);
+        const res = await getProperties({ ids: savedPropertyIds.join(','), limit: 50 });
+        setSavedProperties(res.data);
       } catch (err) {
         console.error('Failed to load saved properties', err);
       } finally {

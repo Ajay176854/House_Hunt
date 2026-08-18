@@ -114,6 +114,7 @@ export async function getProperties(params: FilterParams = {}): Promise<Paginate
   if (params.sort) query.append('sort', params.sort);
   if (params.cursor) query.append('cursor', params.cursor);
   if (params.limit) query.append('limit', params.limit.toString());
+  if (params.ids) query.append('ids', params.ids);
 
   if (params.propertyTypes && params.propertyTypes.length > 0) {
     params.propertyTypes.forEach((pt) => query.append('propertyTypes', pt));

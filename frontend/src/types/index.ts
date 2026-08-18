@@ -117,6 +117,7 @@ export interface FilterParams {
   cursor?: string;
   limit?: number;
   page?: number;
+  ids?: string;
 }
 
 export interface PaginatedResponse<T> {

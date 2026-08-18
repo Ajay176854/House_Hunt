@@ -192,32 +192,35 @@ async function runSeed() {
     const demoPasswordHash = bcrypt.hashSync('demo123', 10);
     
     const demoUsers = [
-      { id: uuidv4(), name: 'Rahul Verma', email: 'rahul@nobrokerdemo.in', role: 'user', phone: '+91 98765 43210' },
-      { id: uuidv4(), name: 'Priya Sharma', email: 'priya.sharma@nobrokerdemo.in', role: 'user', phone: '+91 98201 88765' },
-      { id: uuidv4(), name: 'Vikram Mehta', email: 'vikram.mehta@nobrokerdemo.in', role: 'builder', phone: '+91 99100 23456' },
-      { id: uuidv4(), name: 'Ananya Reddy', email: 'ananya.reddy@nobrokerdemo.in', role: 'agent', phone: '+91 90088 54321' },
-      { id: uuidv4(), name: 'Suresh Patel', email: 'suresh.patel@nobrokerdemo.in', role: 'builder', phone: '+91 87654 32100' },
+      { id: '11111111-1111-1111-1111-111111111111', name: 'Rahul Verma', email: 'rahul@nobrokerdemo.in', role: 'user', phone: '+91 98765 43210' },
+      { id: '22222222-2222-2222-2222-222222222222', name: 'Priya Sharma', email: 'priya.sharma@nobrokerdemo.in', role: 'user', phone: '+91 98201 88765' },
+      { id: '33333333-3333-3333-3333-333333333333', name: 'Vikram Mehta', email: 'vikram.mehta@nobrokerdemo.in', role: 'builder', phone: '+91 99100 23456' },
+      { id: '44444444-4444-4444-4444-444444444444', name: 'Ananya Reddy', email: 'ananya.reddy@nobrokerdemo.in', role: 'agent', phone: '+91 90088 54321' },
+      { id: '55555555-5555-5555-5555-555555555555', name: 'Suresh Patel', email: 'suresh.patel@nobrokerdemo.in', role: 'builder', phone: '+91 87654 32100' },
     ];
 
     for (const user of demoUsers) {
       await client.query(
-        `INSERT INTO users (id, name, email, password_hash, phone, role) VALUES ($1, $2, $3, $4, $5, $6)`,
+        `INSERT INTO users (id, name, email, password_hash, phone, role) VALUES ($1, $2, $3, $4, $5, $6) ON CONFLICT (email) DO NOTHING`,
         [user.id, user.name, user.email, demoPasswordHash, user.phone, user.role]
       );
     }
     
-    // 3. Batch insert 50,000 properties with ALL fields populated
-    const TOTAL_PROPERTIES = 50000;
+    // 3. Batch insert 5,000 properties with ALL fields populated
+    const TOTAL_PROPERTIES = 5000;
     const BATCH_SIZE = 1000;
     const COLUMNS_PER_ROW = 40;
     console.log(`Seeding ${TOTAL_PROPERTIES} properties in batches of ${BATCH_SIZE}...`);
+
+    const usersRes = await client.query('SELECT id, role, name, phone, email FROM users');
+    const dbUsers = usersRes.rows;
 
     for (let i = 0; i < TOTAL_PROPERTIES; i += BATCH_SIZE) {
       const values: any[] = [];
       const placeholders: string[] = [];
       
       for (let j = 0; j < BATCH_SIZE; j++) {
-        const owner = randomChoice(demoUsers);
+        const owner = randomChoice(dbUsers);
         const city = randomChoice(CITIES);
         const localityIdx = randomInt(0, LOCALITIES[city].length - 1);
         const locality = LOCALITIES[city][localityIdx];

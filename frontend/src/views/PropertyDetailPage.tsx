@@ -5,6 +5,7 @@ import { Property } from '@/types';
 import { getPropertyById } from '@/services/api';
 import { formatIndianPrice, formatIndianNumber, timeAgo } from '@/utils/formatters';
 import { useAuth } from '@/context/AuthContext';
+import { useRouter } from 'next/navigation';
 import { PropertyDetailSkeleton } from '@/components/common/LoadingSkeletons';
 import { ErrorState } from '@/components/common/ErrorState';
 import { InquiryModal } from '@/components/property/InquiryModal';
@@ -49,6 +50,7 @@ export const PropertyDetailPage: React.FC<PropertyDetailPageProps> = ({
   onNavigate,
 }) => {
   const { user, isSaved, toggleSave } = useAuth();
+  const router = useRouter();
   const [property, setProperty] = useState<Property | null>(null);
   const [similarProperties, setSimilarProperties] = useState<Property[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -422,41 +424,55 @@ export const PropertyDetailPage: React.FC<PropertyDetailPageProps> = ({
               </div>
 
               <div className="space-y-3">
-                <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-100 text-xs space-y-1">
-                  <span className="text-slate-500 block text-[11px] font-medium">Zero Brokerage Guarantee</span>
-                  <p className="text-slate-800 font-semibold">
-                    Connect directly without paying 1 month rent or 2% broker commissions.
-                  </p>
-                </div>
-
-                {!showPhone ? (
-                  <button
-                    onClick={() => setShowPhone(true)}
-                    className="w-full py-3.5 bg-rose-600 hover:bg-rose-700 active:scale-95 text-white font-bold text-sm rounded-xl shadow-md shadow-rose-600/20 transition-all flex items-center justify-center gap-2 cursor-pointer"
-                  >
-                    <Phone className="w-4 h-4" />
-                    Contact Owner Directly
-                  </button>
+                {isOwner ? (
+                  <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 text-slate-600 text-sm font-medium text-center">
+                    This is your own property listing.
+                  </div>
                 ) : (
-                  <a
-                    href={`tel:${property.ownerPhone || '9876543210'}`}
-                    className="w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-bold text-lg tracking-wide rounded-xl shadow-md shadow-emerald-600/20 transition-all flex items-center justify-center gap-2 cursor-pointer"
-                  >
-                    <Phone className="w-5 h-5" />
-                    {property.ownerPhone || '+91 98765 43210'}
-                  </a>
-                )}
+                  <>
+                    <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-100 text-xs space-y-1">
+                      <span className="text-slate-500 block text-[11px] font-medium">Zero Brokerage Guarantee</span>
+                      <p className="text-slate-800 font-semibold">
+                        Connect directly without paying 1 month rent or 2% broker commissions.
+                      </p>
+                    </div>
 
-                <button
-                  onClick={() => {
-                    setInquiryIntent('visit');
-                    setInquiryModalOpen(true);
-                  }}
-                  className="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-800 font-semibold text-xs rounded-xl transition-colors flex items-center justify-center gap-2 cursor-pointer"
-                >
-                  <Calendar className="w-4 h-4 text-slate-600" />
-                  Schedule Free Physical / Virtual Visit
-                </button>
+                    {!showPhone ? (
+                      <button
+                        onClick={() => {
+                          if (user) {
+                            setShowPhone(true);
+                          } else {
+                            router.push('/login');
+                          }
+                        }}
+                        className="w-full py-3.5 bg-rose-600 hover:bg-rose-700 active:scale-95 text-white font-bold text-sm rounded-xl shadow-md shadow-rose-600/20 transition-all flex items-center justify-center gap-2 cursor-pointer"
+                      >
+                        <Phone className="w-4 h-4" />
+                        Contact Owner Directly
+                      </button>
+                    ) : (
+                      <a
+                        href={`tel:${property.ownerPhone || '9876543210'}`}
+                        className="w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-bold text-lg tracking-wide rounded-xl shadow-md shadow-emerald-600/20 transition-all flex items-center justify-center gap-2 cursor-pointer"
+                      >
+                        <Phone className="w-5 h-5" />
+                        {property.ownerPhone || '+91 98765 43210'}
+                      </a>
+                    )}
+
+                    <button
+                      onClick={() => {
+                        setInquiryIntent('visit');
+                        setInquiryModalOpen(true);
+                      }}
+                      className="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-800 font-semibold text-xs rounded-xl transition-colors flex items-center justify-center gap-2 cursor-pointer"
+                    >
+                      <Calendar className="w-4 h-4 text-slate-600" />
+                      Schedule Free Physical / Virtual Visit
+                    </button>
+                  </>
+                )}
               </div>
 
               <div className="pt-2 border-t border-slate-100 text-[11px] text-slate-500 space-y-1">

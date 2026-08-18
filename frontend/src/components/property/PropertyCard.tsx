@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { Property } from '@/types';
 import { formatIndianPrice, formatArea, timeAgo } from '@/utils/formatters';
 import { useAuth } from '@/context/AuthContext';
+import { useRouter } from 'next/navigation';
 import {
   Heart,
   ChevronLeft,
@@ -32,10 +33,13 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
   onSelect,
   onContactClick,
 }) => {
-  const { isSaved, toggleSave } = useAuth();
+  const { isSaved, toggleSave, user } = useAuth();
+  const router = useRouter();
   const saved = isSaved(property.id);
   const [currentImgIndex, setCurrentImgIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
+  const [showNumber, setShowNumber] = useState(false);
+  const isOwner = user?.id === property.ownerId;
 
   const images = property.images && property.images.length > 0
     ? property.images
@@ -60,6 +64,15 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
     e.stopPropagation();
     if (onContactClick) {
       onContactClick(property);
+    }
+  };
+
+  const handleViewNumber = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (user) {
+      setShowNumber(true);
+    } else {
+      router.push('/login');
     }
   };
 
@@ -191,18 +204,26 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
             </div>
             
             <div className="flex gap-2">
-              <button 
-                onClick={handleContact}
-                className="px-4 py-2 border border-rose-600 text-rose-600 font-bold text-[13px] rounded-lg hover:bg-rose-50 transition-colors cursor-pointer"
-              >
-                View Number
-              </button>
-              <button 
-                onClick={handleContact}
-                className="px-4 py-2 bg-rose-600 text-white font-bold text-[13px] rounded-lg hover:bg-rose-700 transition-colors flex items-center gap-1.5 cursor-pointer"
-              >
-                <PhoneCall className="w-3.5 h-3.5" /> Contact
-              </button>
+              {isOwner ? (
+                <span className="px-4 py-2 bg-slate-100 text-slate-500 font-bold text-[13px] rounded-lg border border-slate-200 text-center flex items-center justify-center">
+                  Your Property
+                </span>
+              ) : (
+                <>
+                  <button 
+                    onClick={handleViewNumber}
+                    className="px-4 py-2 border border-rose-600 text-rose-600 font-bold text-[13px] rounded-lg hover:bg-rose-50 transition-colors cursor-pointer min-w-[120px]"
+                  >
+                    {showNumber ? (property.ownerPhone || '+91-XXXXXXXXXX') : 'View Number'}
+                  </button>
+                  <button 
+                    onClick={handleContact}
+                    className="px-4 py-2 bg-rose-600 text-white font-bold text-[13px] rounded-lg hover:bg-rose-700 transition-colors flex items-center gap-1.5 cursor-pointer"
+                  >
+                    <PhoneCall className="w-3.5 h-3.5" /> Contact
+                  </button>
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -359,13 +380,19 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
             <span className="text-[10px] text-slate-400">{timeAgo(property.createdAt)}</span>
           </div>
 
-          <button
-            onClick={handleContact}
-            className="px-3.5 py-2 bg-rose-600 hover:bg-rose-700 active:scale-95 text-white text-xs font-bold rounded-lg shadow-sm transition-all flex items-center gap-1.5 cursor-pointer"
-          >
-            <PhoneCall className="w-3.5 h-3.5" />
-            Contact Owner
-          </button>
+          {isOwner ? (
+            <span className="px-3.5 py-2 bg-slate-100 text-slate-500 text-xs font-bold rounded-lg border border-slate-200">
+              Your Property
+            </span>
+          ) : (
+            <button
+              onClick={handleContact}
+              className="px-3.5 py-2 bg-rose-600 hover:bg-rose-700 active:scale-95 text-white text-xs font-bold rounded-lg shadow-sm transition-all flex items-center gap-1.5 cursor-pointer"
+            >
+              <PhoneCall className="w-3.5 h-3.5" />
+              Contact Owner
+            </button>
+          )}
         </div>
       </div>
     </div>

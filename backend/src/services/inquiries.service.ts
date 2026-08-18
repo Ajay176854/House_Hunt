@@ -30,6 +30,10 @@ export async function createInquiry(input: CreateInquiryInput, userId?: string) 
   if (!properties.length) throw createApiError("Property not found.", 404);
   const property = properties[0];
 
+  if (userId && property.owner_id === userId) {
+    throw createApiError("You cannot inquire about your own property.", 400);
+  }
+
   const recentWindowStr = new Date(Date.now() - DUPLICATE_WINDOW_MS).toISOString();
   const { rows: existing } = await db.query(
     `SELECT id FROM inquiries WHERE property_id = $1 AND email = $2 AND created_at > $3`,

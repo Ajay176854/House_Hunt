@@ -347,7 +347,25 @@ export const SearchPage: React.FC = () => {
             <div className="mb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
                 <h1 className="text-xl font-medium text-slate-800">
-                  {totalItems} results <span className="font-normal text-slate-500">| Property in {filters.city || 'India'} for {filters.listingType === 'buy' ? 'Sale' : filters.listingType === 'rent' ? 'Rent' : 'Sale/Rent'}</span>
+                  {totalItems} results <span className="font-normal text-slate-500">| Property in {
+                    (() => {
+                      const KNOWN_CITIES = ['mumbai', 'bengaluru', 'bangalore', 'delhi', 'delhi-ncr', 'chennai', 'madras', 'hyderabad', 'pune', 'kolkata', 'ahmedabad', 'gurugram', 'gurgaon', 'noida'];
+                      const searchCityTokens = searchTokens.filter(t => KNOWN_CITIES.includes(t.toLowerCase()));
+                      const allCities = [];
+                      if (filters.city) allCities.push(filters.city);
+                      allCities.push(...searchCityTokens);
+                      
+                      // Remove duplicates ignoring case
+                      const uniqueCities = allCities.filter((city, index, self) => 
+                        index === self.findIndex((c) => c.toLowerCase() === city.toLowerCase())
+                      );
+                      
+                      if (uniqueCities.length === 0) return 'India';
+                      if (uniqueCities.length === 1) return uniqueCities[0];
+                      if (uniqueCities.length === 2) return `${uniqueCities[0]} & ${uniqueCities[1]}`;
+                      return `${uniqueCities[0]} +${uniqueCities.length - 1} more`;
+                    })()
+                  } for {filters.listingType === 'buy' ? 'Sale' : filters.listingType === 'rent' ? 'Rent' : 'Sale/Rent'}</span>
                 </h1>
               </div>
             </div>

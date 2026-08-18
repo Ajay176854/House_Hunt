@@ -89,53 +89,55 @@ export async function searchListings(query: ListingsQuery): Promise<PaginatedRes
   let params: any[] = [];
   let paramIndex = 1;
 
-  // 1. Explicit Global City Filter (from Navbar)
+  // 1. Gather all cities from explicit query.city and query.search
+  const explicitCities: string[] = [];
   if (query.city && query.city.toLowerCase() !== "all") {
-    const explicitCities = query.city.split(',').map(c => c.trim()).filter(c => c.length > 0);
-    if (explicitCities.length > 0) {
-      let mappedCities = explicitCities.map(cityQuery => {
-        const lower = cityQuery.toLowerCase();
-        if (lower === 'bangalore') return 'Bengaluru';
-        if (lower === 'bombay') return 'Mumbai';
-        if (lower === 'delhi') return 'Delhi-NCR';
-        if (lower === 'madras') return 'Chennai';
-        if (lower === 'gurgaon') return 'Gurugram';
-        return cityQuery;
-      });
-      mappedCities = [...new Set(mappedCities)];
-      const cityClauses = mappedCities.map(cityQuery => {
-        const pIndex = paramIndex++;
-        params.push(`%${cityQuery}%`);
-        return `city ILIKE $${pIndex}`;
-      });
-      whereClauses.push(`(${cityClauses.join(' OR ')})`);
-    }
+    explicitCities.push(...query.city.split(',').map(c => c.trim()).filter(c => c.length > 0));
   }
 
-  // 2. Dynamic Search Bar Tokens
+  const searchCities: string[] = [];
+  const searchOtherTerms: string[] = [];
+
   if (query.search && query.search.trim() !== "") {
     const terms = query.search.split(',').map(t => t.trim()).filter(t => t.length > 0);
-    const searchOrClauses: string[] = [];
     const KNOWN_CITIES = ['mumbai', 'bengaluru', 'bangalore', 'delhi', 'delhi-ncr', 'chennai', 'madras', 'hyderabad', 'pune', 'kolkata', 'ahmedabad', 'gurugram', 'gurgaon', 'noida'];
 
     terms.forEach(term => {
-      const lower = term.toLowerCase();
-      if (KNOWN_CITIES.includes(lower)) {
-        let mappedCity = term;
-        if (lower === 'bangalore') mappedCity = 'Bengaluru';
-        if (lower === 'bombay') mappedCity = 'Mumbai';
-        if (lower === 'delhi') mappedCity = 'Delhi-NCR';
-        if (lower === 'madras') mappedCity = 'Chennai';
-        if (lower === 'gurgaon') mappedCity = 'Gurugram';
-
-        const pIndex = paramIndex++;
-        params.push(`%${mappedCity}%`);
-        searchOrClauses.push(`city ILIKE $${pIndex}`);
+      if (KNOWN_CITIES.includes(term.toLowerCase())) {
+        searchCities.push(term);
       } else {
-        const pIndex = paramIndex++;
-        params.push(`%${term}%`);
-        searchOrClauses.push(`(title ILIKE $${pIndex} OR locality ILIKE $${pIndex} OR description ILIKE $${pIndex})`);
+        searchOtherTerms.push(term);
       }
+    });
+  }
+
+  const allCities = [...explicitCities, ...searchCities];
+  if (allCities.length > 0) {
+    let mappedCities = allCities.map(cityQuery => {
+      const lower = cityQuery.toLowerCase();
+      if (lower === 'bangalore') return 'Bengaluru';
+      if (lower === 'bombay') return 'Mumbai';
+      if (lower === 'delhi') return 'Delhi-NCR';
+      if (lower === 'madras') return 'Chennai';
+      if (lower === 'gurgaon') return 'Gurugram';
+      return cityQuery;
+    });
+    mappedCities = [...new Set(mappedCities)];
+    const cityClauses = mappedCities.map(cityQuery => {
+      const pIndex = paramIndex++;
+      params.push(`%${cityQuery}%`);
+      return `city ILIKE $${pIndex}`;
+    });
+    whereClauses.push(`(${cityClauses.join(' OR ')})`);
+  }
+
+  // 2. Dynamic Search Bar Tokens (Other terms)
+  if (searchOtherTerms.length > 0) {
+    const searchOrClauses: string[] = [];
+    searchOtherTerms.forEach(term => {
+      const pIndex = paramIndex++;
+      params.push(`%${term}%`);
+      searchOrClauses.push(`(title ILIKE $${pIndex} OR locality ILIKE $${pIndex} OR description ILIKE $${pIndex} OR society_name ILIKE $${pIndex})`);
     });
 
     if (searchOrClauses.length > 0) {

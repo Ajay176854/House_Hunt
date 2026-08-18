@@ -89,57 +89,58 @@ export async function searchListings(query: ListingsQuery): Promise<PaginatedRes
   let params: any[] = [];
   let paramIndex = 1;
 
-  let cityList: string[] = [];
+  // 1. Explicit Global City Filter (from Navbar)
   if (query.city && query.city.toLowerCase() !== "all") {
-    cityList.push(...query.city.split(',').map(c => c.trim()).filter(c => c.length > 0));
-  }
-
-  if (query.search && query.search.trim() !== "") {
-    let terms = query.search.split(',').map(t => t.trim()).filter(t => t.length > 0);
-    
-    // Extract known cities from search terms
-    const KNOWN_CITIES = ['mumbai', 'bengaluru', 'bangalore', 'delhi', 'delhi-ncr', 'chennai', 'madras', 'hyderabad', 'pune', 'kolkata', 'ahmedabad', 'gurugram', 'gurgaon', 'noida'];
-    
-    const remainingTerms: string[] = [];
-    terms.forEach(term => {
-      const lower = term.toLowerCase();
-      if (KNOWN_CITIES.includes(lower)) {
-        cityList.push(term);
-      } else {
-        remainingTerms.push(term);
-      }
-    });
-
-    if (remainingTerms.length > 0) {
-      const termClauses = remainingTerms.map(term => {
-        const pIndex = paramIndex++;
-        params.push(`%${term}%`);
-        return `(title ILIKE $${pIndex} OR locality ILIKE $${pIndex} OR description ILIKE $${pIndex})`;
+    const explicitCities = query.city.split(',').map(c => c.trim()).filter(c => c.length > 0);
+    if (explicitCities.length > 0) {
+      let mappedCities = explicitCities.map(cityQuery => {
+        const lower = cityQuery.toLowerCase();
+        if (lower === 'bangalore') return 'Bengaluru';
+        if (lower === 'bombay') return 'Mumbai';
+        if (lower === 'delhi') return 'Delhi-NCR';
+        if (lower === 'madras') return 'Chennai';
+        if (lower === 'gurgaon') return 'Gurugram';
+        return cityQuery;
       });
-      whereClauses.push(`(${termClauses.join(' OR ')})`);
+      mappedCities = [...new Set(mappedCities)];
+      const cityClauses = mappedCities.map(cityQuery => {
+        const pIndex = paramIndex++;
+        params.push(`%${cityQuery}%`);
+        return `city ILIKE $${pIndex}`;
+      });
+      whereClauses.push(`(${cityClauses.join(' OR ')})`);
     }
   }
 
-  if (cityList.length > 0) {
-    let mappedCities = cityList.map(cityQuery => {
-      const lower = cityQuery.toLowerCase();
-      if (lower === 'bangalore') return 'Bengaluru';
-      if (lower === 'bombay') return 'Mumbai';
-      if (lower === 'delhi') return 'Delhi-NCR';
-      if (lower === 'madras') return 'Chennai';
-      if (lower === 'gurgaon') return 'Gurugram';
-      return cityQuery;
+  // 2. Dynamic Search Bar Tokens
+  if (query.search && query.search.trim() !== "") {
+    const terms = query.search.split(',').map(t => t.trim()).filter(t => t.length > 0);
+    const searchOrClauses: string[] = [];
+    const KNOWN_CITIES = ['mumbai', 'bengaluru', 'bangalore', 'delhi', 'delhi-ncr', 'chennai', 'madras', 'hyderabad', 'pune', 'kolkata', 'ahmedabad', 'gurugram', 'gurgaon', 'noida'];
+
+    terms.forEach(term => {
+      const lower = term.toLowerCase();
+      if (KNOWN_CITIES.includes(lower)) {
+        let mappedCity = term;
+        if (lower === 'bangalore') mappedCity = 'Bengaluru';
+        if (lower === 'bombay') mappedCity = 'Mumbai';
+        if (lower === 'delhi') mappedCity = 'Delhi-NCR';
+        if (lower === 'madras') mappedCity = 'Chennai';
+        if (lower === 'gurgaon') mappedCity = 'Gurugram';
+
+        const pIndex = paramIndex++;
+        params.push(`%${mappedCity}%`);
+        searchOrClauses.push(`city ILIKE $${pIndex}`);
+      } else {
+        const pIndex = paramIndex++;
+        params.push(`%${term}%`);
+        searchOrClauses.push(`(title ILIKE $${pIndex} OR locality ILIKE $${pIndex} OR description ILIKE $${pIndex})`);
+      }
     });
 
-    // Remove duplicates
-    mappedCities = [...new Set(mappedCities)];
-
-    const cityClauses = mappedCities.map(cityQuery => {
-      const pIndex = paramIndex++;
-      params.push(`%${cityQuery}%`);
-      return `city ILIKE $${pIndex}`;
-    });
-    whereClauses.push(`(${cityClauses.join(' OR ')})`);
+    if (searchOrClauses.length > 0) {
+      whereClauses.push(`(${searchOrClauses.join(' OR ')})`);
+    }
   }
 
   if (query.locality && query.locality.toLowerCase() !== "all") {
